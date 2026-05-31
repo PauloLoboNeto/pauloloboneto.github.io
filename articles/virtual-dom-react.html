@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual DOM e React — Por dentro do algoritmo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --bg2: #f5f5f3;
+  --bg3: #ebebе8;
+  --text: #1a1a18;
+  --text2: #5c5c58;
+  --text3: #8a8a84;
+  --border: rgba(0,0,0,0.1);
+  --border2: rgba(0,0,0,0.22);
+  --info-bg: #e6f1fb;
+  --info-text: #185fa5;
+  --info-border: rgba(24,95,165,0.3);
+  --warn-bg: #faeeda;
+  --warn-text: #854f0b;
+  --warn-border: rgba(186,117,23,0.4);
+  --success-bg: #eaf3de;
+  --success-text: #3b6d11;
+  --success-border: rgba(99,153,34,0.4);
+  --danger-bg: #fcebeb;
+  --danger-text: #a32d2d;
+  --danger-border: rgba(226,75,74,0.4);
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1a;
+    --bg2: #242422;
+    --bg3: #2e2e2b;
+    --text: #e8e8e2;
+    --text2: #a8a8a0;
+    --text3: #6a6a62;
+    --border: rgba(255,255,255,0.1);
+    --border2: rgba(255,255,255,0.22);
+    --info-bg: #042c53;
+    --info-text: #85b7eb;
+    --info-border: rgba(133,183,235,0.3);
+    --warn-bg: #412402;
+    --warn-text: #fac775;
+    --warn-border: rgba(250,199,117,0.35);
+    --success-bg: #173404;
+    --success-text: #97c459;
+    --success-border: rgba(151,196,89,0.35);
+    --danger-bg: #501313;
+    --danger-text: #f09595;
+    --danger-border: rgba(240,149,149,0.35);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 0;
+  line-height: 1.6;
+}
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+}
+
+/* ── HEADER ── */
+.article-header {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 0.5px solid var(--border);
+}
+.article-kicker {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--info-text);
+  margin-bottom: 1rem;
+}
+.article-title {
+  font-family: 'Lora', serif;
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+.article-lede {
+  font-family: 'Lora', serif;
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+}
+.article-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text3);
+}
+.meta-sep { opacity: 0.4; }
+
+/* ── TYPOGRAPHY ── */
+.section { margin-bottom: 3.5rem; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 1.75rem 0 0.75rem;
+  line-height: 1.4;
+}
+
+p {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--text2);
+  margin-bottom: 1rem;
+}
+p strong { font-weight: 500; color: var(--text); }
+p em { font-style: italic; }
+
+a { color: var(--info-text); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--text);
+}
+
+.code-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0;
+  line-height: 1.75;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+}
+.kw { color: #7c6af7; }
+.fn { color: #2db4a4; }
+.cm { color: var(--text3); font-style: italic; }
+.str { color: #e08040; }
+.nb { color: var(--text2); }
+
+.ref {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  vertical-align: super;
+  background: var(--info-bg);
+  color: var(--info-text);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 2px;
+  cursor: default;
+  line-height: 1;
+}
+
+hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
+
+.callout {
+  border-left: 2px solid var(--info-text);
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  background: var(--bg2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.callout p { font-size: 13.5px; margin: 0; color: var(--text2); }
+
+/* ── SHARED WIDGET PARTS ── */
+.widget {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  background: var(--bg2);
+}
+.widget-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  gap: 12px;
+}
+.widget-title {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text3);
+}
+.btn {
+  font-size: 12px;
+  padding: 5px 14px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border2);
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn:hover { background: var(--bg3); }
+
+/* ── TREE DIFF ── */
+.trees-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.tree-side-lbl { font-size: 11px; font-weight: 500; color: var(--text3); text-align: center; margin-bottom: 0.75rem; }
+.node-g { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.node-row { display: flex; justify-content: center; gap: 6px; }
+.node-wrap { display: flex; flex-direction: column; align-items: center; }
+.node-line { width: 1px; height: 14px; background: var(--border2); }
+.vnode {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 4px 9px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text2);
+  white-space: nowrap;
+  transition: all 0.4s ease;
+}
+.vnode.hl { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+.vnode.added { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+.vnode.removed { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-text); opacity: 0.45; }
+.diff-legend { display: flex; gap: 16px; margin-top: 1rem; font-size: 11px; color: var(--text3); justify-content: center; flex-wrap: wrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.dot-w { background: var(--warn-bg); border: 1px solid var(--warn-border); }
+.dot-s { background: var(--success-bg); border: 1px solid var(--success-border); }
+.dot-d { background: var(--danger-bg); border: 1px solid var(--danger-border); }
+.diff-status { margin-top: 1rem; font-size: 12px; color: var(--text2); text-align: center; min-height: 20px; transition: opacity 0.2s; }
+
+/* ── PIPELINE ── */
+.pipeline { display: flex; align-items: flex-start; overflow-x: auto; padding: 4px 0; gap: 0; }
+.pipe-step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; min-width: 70px; }
+.pipe-box {
+  font-size: 11px; font-weight: 500; padding: 7px 10px;
+  border-radius: var(--radius); background: var(--bg2);
+  border: 0.5px solid var(--border); color: var(--text2);
+  white-space: nowrap; transition: all 0.3s; text-align: center;
+}
+.pipe-box.active { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); transform: scale(1.07); }
+.pipe-arrow { font-size: 11px; color: var(--text3); flex: 0; padding: 0 2px; padding-top: 9px; }
+.pipe-lbl { font-size: 10px; color: var(--text3); height: 14px; text-align: center; }
+.pipe-lbl.active { color: var(--warn-text); font-weight: 500; }
+
+/* ── THRASH ── */
+.thrash-item { display: flex; align-items: center; gap: 12px; font-size: 11px; font-family: 'JetBrains Mono', monospace; margin-bottom: 7px; }
+.thrash-bar { height: 20px; border-radius: 4px; background: var(--bg); border: 0.5px solid var(--border); transition: width 0.15s; min-width: 20px; }
+.thrash-cost { font-size: 10px; color: var(--text3); min-width: 64px; text-align: right; }
+.thrash-big { font-size: 22px; font-weight: 500; margin-top: 1rem; color: var(--text); }
+.thrash-big span { color: var(--danger-text); }
+@keyframes flash-bar { 0%{background:var(--danger-bg)}100%{background:var(--bg)} }
+.flash { animation: flash-bar 0.4s ease-out; }
+
+/* ── STEPPER ── */
+.step-pills { display: flex; gap: 4px; margin-bottom: 1rem; }
+.pill {
+  flex: 1; height: 3px; border-radius: 2px;
+  background: var(--border); cursor: pointer; transition: background 0.3s;
+}
+.pill.done { background: var(--info-text); }
+.step-body {
+  border: 0.5px solid var(--border); border-radius: var(--radius-lg);
+  padding: 1.5rem; background: var(--bg2); min-height: 190px;
+}
+.step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+.step-count { font-size: 11px; color: var(--text3); }
+
+/* ── FIBER PRIORITY ── */
+.priority-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 0.6rem 0; align-items: center; }
+.pchip {
+  font-size: 11px; padding: 4px 11px; border-radius: 20px;
+  border: 0.5px solid var(--border); color: var(--text2); background: var(--bg);
+}
+.pchip.hi { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+.pchip.lo { background: var(--bg2); color: var(--text3); }
+.pchip.sep { border: none; background: none; color: var(--text3); font-size: 12px; padding: 0 2px; }
+
+/* ── FIBER VISUAL ── */
+.fiber-visual {
+  margin: 1.5rem 0;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  background: var(--bg2);
+  overflow: hidden;
+}
+.fiber-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.fiber-node {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text2);
+  white-space: nowrap;
+  transition: all 0.4s;
+  cursor: default;
+}
+.fiber-node.current { background: var(--info-bg); border-color: var(--info-border); color: var(--info-text); }
+.fiber-node.wip { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+.fiber-node.commit { background: var(--success-bg); border-color: var(--success-border); color: var(--success-text); }
+.fiber-connector {
+  width: 18px; height: 1px; background: var(--border2); flex-shrink: 0;
+}
+.fiber-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 0.75rem; font-size: 11px; color: var(--text3); }
+.fiber-legend span { display: flex; align-items: center; gap: 5px; }
+.fleg-dot {
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+
+/* ── REFS ── */
+.refs { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border); }
+.refs-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 1rem; }
+.ref-item { font-size: 12.5px; color: var(--text3); margin-bottom: 0.6rem; display: flex; gap: 10px; line-height: 1.6; }
+.ref-badge {
+  font-size: 10px; font-weight: 500;
+  background: var(--info-bg); color: var(--info-text);
+  padding: 1px 6px; border-radius: 4px;
+  flex-shrink: 0; align-self: flex-start; margin-top: 2px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══ HEADER ══ -->
+<header class="article-header">
+  <div class="article-kicker">Internals do React</div>
+  <h1 class="article-title">Virtual DOM e React: por dentro do algoritmo que mantém sua UI eficiente</h1>
+  <p class="article-lede">
+    O Virtual DOM não é uma API do browser — é uma abstração em JavaScript criada para resolver um problema fundamental: como aplicar mudanças de estado na interface sem forçar o browser a recalcular o layout a cada operação.
+  </p>
+  <div class="article-meta">
+    <span>React Internals</span>
+    <span class="meta-sep">·</span>
+    <span>Reconciliation</span>
+    <span class="meta-sep">·</span>
+    <span>Performance</span>
+  </div>
+</header>
+
+<!-- ══ SEÇÃO 1: O QUE É O VIRTUAL DOM ══ -->
+<div class="section">
+  <div class="section-label">O que é o Virtual DOM</div>
+
+  <p>
+    Pense no Virtual DOM como uma <strong>cópia leve do DOM real</strong>, mantida inteiramente em memória como objetos JavaScript. Cada elemento da interface corresponde a um nó nessa árvore virtual — com tipo, propriedades e filhos, mas sem nenhum custo de renderização.
+  </p>
+  <p>
+    No React, quando o estado de um componente muda, uma nova árvore virtual é gerada. O algoritmo de <strong>reconciliação</strong> compara essa nova árvore com a anterior e calcula o conjunto mínimo de operações necessárias para sincronizar o DOM real. <span class="ref">1</span>
+  </p>
+  <p>
+    A chave está em <em>o que não acontece</em>: o browser não é chamado até que o diff esteja calculado. As operações são agrupadas e aplicadas em lote — minimizando reflows e repaints.
+  </p>
+
+  <!-- Widget: Diff de árvore -->
+  <div class="widget">
+    <div class="widget-row">
+      <span class="widget-title">Visualizar reconciliação</span>
+      <button class="btn" onclick="runDiff()">Disparar atualização de estado →</button>
+    </div>
+    <div class="trees-row">
+      <div>
+        <div class="tree-side-lbl">Árvore anterior</div>
+        <div class="node-g">
+          <div class="node-row"><div class="node-wrap"><div class="vnode" id="old-app">&lt;App&gt;</div><div class="node-line"></div></div></div>
+          <div class="node-row" style="gap:6px;margin-bottom:0">
+            <div class="node-wrap"><div class="vnode" id="old-hdr">&lt;Header&gt;</div><div class="node-line"></div></div>
+            <div class="node-wrap"><div class="vnode" id="old-main">&lt;Main&gt;</div><div class="node-line"></div></div>
+          </div>
+          <div class="node-row" style="gap:6px">
+            <div class="node-wrap"><div class="vnode" id="old-h1">&lt;h1&gt; "Olá"</div></div>
+            <div class="node-wrap"><div class="vnode" id="old-p">&lt;p&gt; "texto"</div></div>
+            <div class="node-wrap"><div class="vnode" id="old-btn">&lt;button&gt;</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="tree-side-lbl">Nova árvore</div>
+        <div class="node-g">
+          <div class="node-row"><div class="node-wrap"><div class="vnode" id="new-app">&lt;App&gt;</div><div class="node-line"></div></div></div>
+          <div class="node-row" style="gap:6px;margin-bottom:0">
+            <div class="node-wrap"><div class="vnode" id="new-hdr">&lt;Header&gt;</div><div class="node-line"></div></div>
+            <div class="node-wrap"><div class="vnode" id="new-main">&lt;Main&gt;</div><div class="node-line"></div></div>
+          </div>
+          <div class="node-row" style="gap:6px">
+            <div class="node-wrap"><div class="vnode" id="new-h1">&lt;h1&gt; "Olá"</div></div>
+            <div class="node-wrap"><div class="vnode" id="new-p">&lt;p&gt; "novo!"</div></div>
+            <div class="node-wrap"><div class="vnode" id="new-icon" style="opacity:0">&lt;Icon&gt;</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="diff-legend">
+      <span><span class="dot dot-w"></span>modificado</span>
+      <span><span class="dot dot-s"></span>adicionado</span>
+      <span><span class="dot dot-d"></span>removido</span>
+    </div>
+    <div class="diff-status" id="diff-status">Pressione o botão para simular uma mudança de estado</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══ SEÇÃO 2: REFLOW ══ -->
+<div class="section">
+  <div class="section-label">O que é um reflow</div>
+
+  <p>
+    É o processo em que o browser <strong>recalcula a posição e o tamanho de todos os elementos afetados</strong> para reconstruir a árvore de layout. O browser possui um pipeline de renderização com etapas bem definidas:
+  </p>
+
+  <!-- Widget: Pipeline animado -->
+  <div class="pipeline" id="pipeline" style="margin:1.5rem 0">
+    <div class="pipe-step"><div class="pipe-box" id="p-js">JavaScript</div><div class="pipe-lbl" id="l-js"></div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step"><div class="pipe-box" id="p-style">Style</div><div class="pipe-lbl" id="l-style"></div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step"><div class="pipe-box" id="p-layout">Layout</div><div class="pipe-lbl" id="l-layout">← reflow aqui</div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step"><div class="pipe-box" id="p-paint">Paint</div><div class="pipe-lbl" id="l-paint"></div></div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-step"><div class="pipe-box" id="p-comp">Composite</div><div class="pipe-lbl" id="l-comp"></div></div>
+  </div>
+
+  <p>
+    Sempre que algo muda geometricamente, o browser precisa reexecutar a etapa de <strong>Layout</strong>. Qualquer operação que afete geometria ou layout dispara esse processo <span class="ref">2</span>:
+  </p>
+  <ul style="margin:0.5rem 0 1rem 1.5rem;color:var(--text2);font-size:15px;line-height:2">
+    <li>Alterar <code>width</code>, <code>height</code>, <code>margin</code>, <code>padding</code> ou <code>border</code></li>
+    <li>Adicionar ou remover elementos do DOM</li>
+    <li>Alterar conteúdo textual</li>
+    <li>Redimensionar a janela</li>
+    <li><strong>Ler</strong> propriedades como <code>offsetWidth</code> ou <code>getBoundingClientRect()</code> após mudanças pendentes</li>
+  </ul>
+  <p>
+    Esse custo explica os travamentos onde você tenta interagir com um elemento e nada acontece — o browser está realizando cálculos pesados e bloqueando a <em>main thread</em>.
+  </p>
+</div>
+
+<hr>
+
+<!-- ══ SEÇÃO 3: LAYOUT THRASHING ══ -->
+<div class="section">
+  <div class="section-label">Layout thrashing</div>
+
+  <p>
+    O código abaixo implementa um dos piores cenários possíveis, conhecido como <strong>layout thrashing</strong>: ler (<code>offsetWidth</code>) e escrever (<code>style</code>) no DOM dentro de um loop. A cada iteração, o browser invalida o cálculo anterior e precisa recomputar o layout, multiplicando o custo por <em>n</em>.
+  </p>
+
+  <div class="code-block"><span class="cm">// ❌ Layout thrashing — O(n) reflows</span>
+<span class="kw">const</span> elementos = document.<span class="fn">querySelectorAll</span>(<span class="str">'.item'</span>);
+elementos.<span class="fn">forEach</span>((<span class="nb">e</span>) => {
+  <span class="kw">if</span> (<span class="nb">10</span> > e.<span class="fn">offsetWidth</span>) {    <span class="cm">// ← leitura: força reflow</span>
+    e.style.backgroundColor = <span class="str">'red'</span>; <span class="cm">// ← escrita: invalida layout</span>
+    e.style.width = <span class="str">'9px'</span>;
+  }
+});</div>
+
+  <p>
+    Repare que ao solicitar <code>offsetWidth</code>, o navegador é forçado a recalcular o layout da página antes de retornar o valor — percorrendo a árvore do DOM, calculando posições e tamanhos, e <strong>bloqueando a main thread</strong> até que o cálculo seja concluído.
+  </p>
+
+  <!-- Widget: Simulador de thrashing -->
+  <div class="widget" style="background:var(--bg)">
+    <div class="widget-row">
+      <span class="widget-title">Simulador de reflows</span>
+      <button class="btn" onclick="runThrash()">Executar loop →</button>
+    </div>
+    <div id="thrash-items"></div>
+    <div class="thrash-big">Reflows forçados: <span id="reflow-count">0</span></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px" id="n-note">n = 5 elementos</div>
+    <input type="range" min="2" max="8" value="5" id="n-range" style="width:100%;margin-top:8px" oninput="updateN(this.value)">
+  </div>
+
+  <h3>A solução: separar leituras de escritas</h3>
+  <p>
+    Leia <strong>todas</strong> as propriedades primeiro — o browser calcula o layout uma única vez. Depois aplique todas as modificações.
+  </p>
+
+  <div class="code-block"><span class="cm">// ✅ Leitura separada da escrita — 1 reflow</span>
+<span class="kw">const</span> larguras = [...elementos].<span class="fn">map</span>(<span class="nb">e</span> => e.<span class="fn">offsetWidth</span>);
+elementos.<span class="fn">forEach</span>((<span class="nb">e</span>, <span class="nb">i</span>) => {
+  <span class="kw">if</span> (<span class="nb">10</span> > larguras[i]) {
+    e.style.backgroundColor = <span class="str">'red'</span>;
+    e.style.width = <span class="str">'9px'</span>;
+  }
+});</div>
+
+  <div class="callout">
+    <p>💡 Para buscas pontuais, prefira <code>getElementById</code>: navegadores mantêm índices internos para IDs, tornando a busca O(1) em vez de O(n). <span class="ref">2</span></p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══ SEÇÃO 4: RECONCILIAÇÃO ══ -->
+<div class="section">
+  <div class="section-label">Reconciliação — o algoritmo de diff</div>
+
+  <p>
+    O Virtual DOM tem justamente o objetivo de minimizar esse impacto, armazenando alterações em estruturas JavaScript, calculando apenas o que mudou e aplicando as mudanças no DOM real de maneira <strong>otimizada e em lote</strong>.
+  </p>
+  <p>
+    O React aplica heurísticas para transformar um problema O(n³) — comparação exata de duas árvores — em <strong>O(n)</strong>, percorrendo cada nó apenas uma vez. <span class="ref">1</span>
+  </p>
+
+  <!-- Widget: Stepper de heurísticas -->
+  <div class="step-pills" id="step-pills"></div>
+  <div class="step-body" id="step-body"></div>
+  <div class="step-nav">
+    <button class="btn" onclick="stepPrev()">← anterior</button>
+    <span class="step-count" id="step-count">1 / 4</span>
+    <button class="btn" onclick="stepNext()">próximo →</button>
+  </div>
+</div>
+
+<hr>
+
+<!-- ══ SEÇÃO 5: REACT FIBER ══ -->
+<div class="section">
+  <div class="section-label">React Fiber — o motor atual</div>
+
+  <p>
+    O algoritmo original (Stack Reconciler) percorria a árvore de forma <strong>recursiva e síncrona</strong>. Em árvores grandes, isso bloqueava a main thread por tempo suficiente para causar frames perdidos. <span class="ref">3</span>
+  </p>
+  <p>
+    Com React 16 (setembro de 2017), o <strong>Fiber</strong> reescreveu o reconciliador do zero. A ideia central: cada componente vira uma <em>fiber</em> — um objeto JavaScript que representa um <em>virtual stack frame</em>, podendo ser pausado, retomado ou abortado. <span class="ref">3</span>
+  </p>
+  <p>
+    Nas palavras de Andrew Clark, autor do Fiber:
+  </p>
+  <div class="callout" style="border-color:var(--text3)">
+    <p style="font-family:'Lora',serif;font-style:italic;font-size:15px;line-height:1.75;color:var(--text2)">"Fiber is a reimplementation of the stack, specialized for React components. You can think of a single fiber as a virtual stack frame. The advantage of reimplementing the stack is that you can keep stack frames in memory and execute them however and whenever you want."</p>
+    <p style="font-size:12px;color:var(--text3);margin-top:0.5rem">— Andrew Clark, React Fiber Architecture <span class="ref">3</span></p>
+  </div>
+
+  <p>
+    Telas a 60fps exigem que cada frame seja processado em menos de <strong>16.6ms</strong>. O modelo síncrono do Stack Reconciler não conseguia garantir isso em árvores complexas — o Fiber resolve ao tornar o trabalho interruptível.
+  </p>
+
+  <p>Isso permite ao React <strong>priorizar trabalho</strong>:</p>
+
+  <div class="priority-row">
+    <span class="pchip hi">Alta prioridade</span>
+    <span class="pchip sep">→</span>
+    <span class="pchip hi">Animações</span>
+    <span class="pchip hi">Input do usuário</span>
+  </div>
+  <div class="priority-row">
+    <span class="pchip lo">Baixa prioridade</span>
+    <span class="pchip sep">→</span>
+    <span class="pchip lo">Fetch de dados</span>
+    <span class="pchip lo">startTransition</span>
+    <span class="pchip lo">Renders em background</span>
+  </div>
+
+  <h3>Work-in-progress tree</h3>
+  <p>
+    Durante uma atualização, o React constrói uma nova árvore de fibras em paralelo — sem tocar na árvore atual (<em>current tree</em>). Só quando o trabalho está completo a nova árvore é "comitada" para o DOM. <span class="ref">4</span>
+  </p>
+
+  <!-- Widget: Fiber visual -->
+  <div class="fiber-visual">
+    <div class="widget-row" style="margin-bottom:1rem">
+      <span class="widget-title">Ciclo de atualização do Fiber</span>
+      <button class="btn" onclick="animateFiber()">Simular setState →</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:1rem" id="fiber-phase">Fase 1 — render (interruptível)</div>
+    <div class="fiber-row">
+      <span style="font-size:10px;color:var(--text3);min-width:80px">current tree</span>
+      <div class="fiber-node current" id="fc-app">&lt;App&gt;</div>
+      <div class="fiber-connector"></div>
+      <div class="fiber-node current" id="fc-list">&lt;List&gt;</div>
+      <div class="fiber-connector"></div>
+      <div class="fiber-node current" id="fc-item">&lt;Item&gt;</div>
+    </div>
+    <div class="fiber-row" style="margin-top:4px">
+      <span style="font-size:10px;color:var(--text3);min-width:80px">work-in-progress</span>
+      <div class="fiber-node" id="fw-app">&lt;App&gt;</div>
+      <div class="fiber-connector"></div>
+      <div class="fiber-node" id="fw-list">&lt;List&gt;</div>
+      <div class="fiber-connector"></div>
+      <div class="fiber-node" id="fw-item">&lt;Item&gt;</div>
+    </div>
+    <div class="fiber-legend">
+      <span><div class="fleg-dot" style="background:var(--info-bg);border:1px solid var(--info-border)"></div>current (DOM atual)</span>
+      <span><div class="fleg-dot" style="background:var(--warn-bg);border:1px solid var(--warn-border)"></div>work-in-progress (em cálculo)</span>
+      <span><div class="fleg-dot" style="background:var(--success-bg);border:1px solid var(--success-border)"></div>commit (aplicado ao DOM)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REFS ══ -->
+<div class="refs">
+  <div class="refs-title">Referências</div>
+  <div class="ref-item"><span class="ref-badge">1</span><span>React Team. <em>Reconciliation.</em> React Official Docs. <a href="https://legacy.reactjs.org/docs/reconciliation.html" target="_blank">legacy.reactjs.org/docs/reconciliation</a></span></div>
+  <div class="ref-item"><span class="ref-badge">2</span><span>Addy Osmani. <em>Rendering Performance.</em> web.dev / Google Developers. <a href="https://web.dev/rendering-performance/" target="_blank">web.dev/rendering-performance</a></span></div>
+  <div class="ref-item"><span class="ref-badge">3</span><span>Andrew Clark. <em>React Fiber Architecture.</em> GitHub, 2016. <a href="https://github.com/acdlite/react-fiber-architecture" target="_blank">github.com/acdlite/react-fiber-architecture</a></span></div>
+  <div class="ref-item"><span class="ref-badge">4</span><span>Kasra Khosravi. <em>A deep dive into React Fiber.</em> LogRocket Blog, 2024. <a href="https://blog.logrocket.com/deep-dive-react-fiber/" target="_blank">blog.logrocket.com/deep-dive-react-fiber</a></span></div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+/* ═══ DIFF ANIMATION ═══ */
+let diffDone = false;
+function runDiff() {
+  if (diffDone) { resetDiff(); setTimeout(runDiff, 120); return; }
+  diffDone = true;
+  const s = document.getElementById('diff-status');
+  s.textContent = 'Gerando nova árvore virtual...';
+  setTimeout(() => s.textContent = 'Executando diff entre árvores...', 700);
+  setTimeout(() => {
+    ['old-p','new-p'].forEach(id => document.getElementById(id).classList.add('hl'));
+    s.textContent = 'Diferença encontrada: conteúdo de <p> mudou';
+  }, 1400);
+  setTimeout(() => {
+    document.getElementById('old-btn').classList.add('removed');
+    const ni = document.getElementById('new-icon');
+    ni.style.opacity = '1'; ni.classList.add('added');
+    s.textContent = '<button> removido, <Icon> adicionado';
+  }, 2300);
+  setTimeout(() => s.textContent = '✓ DOM real atualizado em 2 operações — não em 7', 3300);
+}
+function resetDiff() {
+  diffDone = false;
+  ['old-p','old-btn','new-p','new-icon'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('hl','added','removed');
+  });
+  document.getElementById('new-icon').style.opacity = '0';
+  document.getElementById('diff-status').textContent = 'Pressione o botão para simular uma mudança de estado';
+}
+
+/* ═══ PIPELINE ═══ */
+const pipeIds = ['p-js','p-style','p-layout','p-paint','p-comp'];
+const pipeLbls = ['l-js','l-style','l-layout','l-paint','l-comp'];
+let pipeRunning = false;
+function animatePipeline() {
+  if (pipeRunning) return;
+  pipeRunning = true;
+  pipeIds.forEach((id, i) => {
+    setTimeout(() => {
+      pipeIds.forEach(p => document.getElementById(p).classList.remove('active'));
+      pipeLbls.forEach(p => document.getElementById(p).classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      if (id === 'p-layout') document.getElementById('l-layout').classList.add('active');
+      if (i === pipeIds.length - 1) {
+        setTimeout(() => {
+          pipeIds.forEach(p => document.getElementById(p).classList.remove('active'));
+          pipeLbls.forEach(p => document.getElementById(p).classList.remove('active'));
+          pipeRunning = false;
+          setTimeout(animatePipeline, 2000);
+        }, 700);
+      }
+    }, i * 500);
+  });
+}
+setTimeout(animatePipeline, 900);
+
+/* ═══ THRASH ═══ */
+let nVal = 5, thrashRunning = false;
+function updateN(v) {
+  nVal = parseInt(v);
+  buildItems(nVal);
+  document.getElementById('n-note').textContent = `n = ${nVal} elementos`;
+}
+function buildItems(n) {
+  const c = document.getElementById('thrash-items');
+  c.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const row = document.createElement('div');
+    row.className = 'thrash-item';
+    row.innerHTML = `<span style="color:var(--text3);min-width:22px">e${i}</span><div class="thrash-bar" id="tb-${i}" style="width:80px"></div><span class="thrash-cost" id="tc-${i}">—</span>`;
+    c.appendChild(row);
+  }
+  document.getElementById('reflow-count').textContent = '0';
+}
+buildItems(5);
+function runThrash() {
+  if (thrashRunning) return;
+  thrashRunning = true;
+  let count = 0;
+  document.getElementById('reflow-count').textContent = '0';
+  for (let i = 0; i < nVal; i++) {
+    const b = document.getElementById(`tb-${i}`);
+    const c = document.getElementById(`tc-${i}`);
+    if (b) b.style.width = '80px';
+    if (c) c.textContent = '—';
+  }
+  let i = 0;
+  function tick() {
+    if (i >= nVal) { thrashRunning = false; return; }
+    const b = document.getElementById(`tb-${i}`);
+    const c = document.getElementById(`tc-${i}`);
+    count++;
+    document.getElementById('reflow-count').textContent = count;
+    if (b) {
+      b.style.width = (40 + Math.random() * 120) + 'px';
+      b.classList.add('flash');
+      setTimeout(() => b.classList.remove('flash'), 400);
+    }
+    if (c) c.textContent = `reflow #${count}`;
+    i++;
+    setTimeout(tick, 220);
+  }
+  tick();
+}
+
+/* ═══ STEPPER ═══ */
+const steps = [
+  {
+    title: 'Heurística 1 — tipo de elemento',
+    body: `<p style="font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:1rem">Se dois nós têm <strong>tipos diferentes</strong> (ex: <code>&lt;div&gt;</code> virou <code>&lt;span&gt;</code>), o React descarta toda a subárvore e reconstrói do zero. A comparação para nesse nó — sem descer nos filhos.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:110px;padding:12px;border-radius:var(--radius);border:0.5px solid var(--danger-border);background:var(--danger-bg)"><div style="font-size:10px;color:var(--danger-text);margin-bottom:6px">antes</div><code>&lt;div&gt; … &lt;/div&gt;</code></div>
+      <div style="display:flex;align-items:center;color:var(--text3);font-size:14px;padding:0 4px">→</div>
+      <div style="flex:1;min-width:110px;padding:12px;border-radius:var(--radius);border:0.5px solid var(--success-border);background:var(--success-bg)"><div style="font-size:10px;color:var(--success-text);margin-bottom:6px">depois</div><code>&lt;span&gt; … &lt;/span&gt;</code></div>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-top:0.75rem;margin-bottom:0">Resultado: subárvore inteira destruída e recriada.</p>`
+  },
+  {
+    title: 'Heurística 2 — mesmo tipo, atributos diferentes',
+    body: `<p style="font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:1rem">Se o tipo permanece igual, o React <strong>reutiliza o nó do DOM</strong> e atualiza apenas os atributos que mudaram. Os filhos são comparados recursivamente.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:130px;padding:12px;border-radius:var(--radius);background:var(--bg);border:0.5px solid var(--border)"><code style="font-size:11px">&lt;div className=<span style="color:#e08040">"a"</span>&gt;</code></div>
+      <div style="display:flex;align-items:center;color:var(--text3);font-size:14px;padding:0 4px">→</div>
+      <div style="flex:1;min-width:130px;padding:12px;border-radius:var(--radius);border:0.5px solid var(--warn-border);background:var(--warn-bg)"><code style="font-size:11px">&lt;div className=<span style="color:#e08040">"b"</span>&gt;</code></div>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-top:0.75rem;margin-bottom:0">Resultado: apenas <code>className</code> atualizado no DOM real. Nó preservado.</p>`
+  },
+  {
+    title: 'Heurística 3 — listas e keys',
+    body: `<p style="font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:1rem">Para listas, o React usa a prop <code>key</code> para identificar cada item entre renders. Sem keys, a inserção no início força atualização de todos os itens seguintes.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="flex:1;min-width:130px;padding:10px;border-radius:var(--radius);border:0.5px solid var(--danger-border);background:var(--danger-bg)"><div style="font-size:10px;color:var(--danger-text);margin-bottom:6px">❌ sem key</div><code style="font-size:10px;line-height:1.8;display:block">&lt;li&gt;B&lt;/li&gt; ← atualiza<br>&lt;li&gt;C&lt;/li&gt; ← atualiza<br>&lt;li&gt;A (novo)&lt;/li&gt;</code></div>
+      <div style="flex:1;min-width:130px;padding:10px;border-radius:var(--radius);border:0.5px solid var(--success-border);background:var(--success-bg)"><div style="font-size:10px;color:var(--success-text);margin-bottom:6px">✅ com key</div><code style="font-size:10px;line-height:1.8;display:block">&lt;li key="a"&gt;A&lt;/li&gt; ← novo<br>&lt;li key="b"&gt;B&lt;/li&gt; ← move<br>&lt;li key="c"&gt;C&lt;/li&gt; ← move</code></div>
+    </div>`
+  },
+  {
+    title: 'Batching — aplicação em lote',
+    body: `<p style="font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:1rem">O React agrupa múltiplas atualizações de estado em um único ciclo de reconciliação. No React 18, o <strong>automatic batching</strong> estende isso para promises, timeouts e eventos nativos.</p>
+    <div class="code-block" style="font-size:11.5px;margin:0"><span class="cm">// React 18 — 1 re-render, não 2</span>
+<span class="fn">setTimeout</span>(() => {
+  <span class="fn">setCount</span>(c => c + <span class="nb">1</span>);
+  <span class="fn">setFlag</span>(<span class="kw">true</span>);
+  <span class="cm">// → 1 re-render</span>
+}, <span class="nb">1000</span>);</div>`
+  }
+];
+let curStep = 0;
+function renderStepper() {
+  const pillsEl = document.getElementById('step-pills');
+  const bodyEl = document.getElementById('step-body');
+  pillsEl.innerHTML = '';
+  steps.forEach((_, i) => {
+    const p = document.createElement('div');
+    p.className = 'pill' + (i <= curStep ? ' done' : '');
+    p.onclick = () => { curStep = i; renderStepper(); };
+    pillsEl.appendChild(p);
+  });
+  const s = steps[curStep];
+  bodyEl.innerHTML = `<div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:0.85rem">${s.title}</div>${s.body}`;
+  document.getElementById('step-count').textContent = `${curStep + 1} / ${steps.length}`;
+}
+function stepNext() { curStep = Math.min(curStep + 1, steps.length - 1); renderStepper(); }
+function stepPrev() { curStep = Math.max(curStep - 1, 0); renderStepper(); }
+renderStepper();
+
+/* ═══ FIBER ANIMATION ═══ */
+let fiberRunning = false;
+const fwIds = ['fw-app','fw-list','fw-item'];
+const fcIds = ['fc-app','fc-list','fc-item'];
+function animateFiber() {
+  if (fiberRunning) return;
+  fiberRunning = true;
+  const phase = document.getElementById('fiber-phase');
+  // Reset
+  fwIds.forEach(id => { const el = document.getElementById(id); el.classList.remove('wip','commit','current'); });
+  fcIds.forEach(id => document.getElementById(id).classList.add('current'));
+  phase.textContent = 'Fase 1 — render (interruptível)';
+  // Build WIP one by one
+  fwIds.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('wip');
+    }, 400 + i * 500);
+  });
+  // Commit phase
+  setTimeout(() => {
+    phase.textContent = 'Fase 2 — commit (síncrona, aplica ao DOM)';
+    fwIds.forEach((id, i) => {
+      setTimeout(() => {
+        document.getElementById(id).classList.remove('wip');
+        document.getElementById(id).classList.add('commit');
+      }, i * 300);
+    });
+  }, 2200);
+  // Swap: WIP becomes current
+  setTimeout(() => {
+    phase.textContent = 'Concluído — work-in-progress virou o novo current tree';
+    fcIds.forEach(id => document.getElementById(id).classList.remove('current'));
+    fwIds.forEach(id => {
+      document.getElementById(id).classList.remove('commit');
+      document.getElementById(id).classList.add('current');
+    });
+    fiberRunning = false;
+  }, 3500);
+}
+</script>
+</body>
+</html>
