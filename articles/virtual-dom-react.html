@@ -64,6 +64,7 @@ body {
   color: var(--text);
   padding: 0;
   line-height: 1.6;
+   overflow-x: hidden;
 }
 
 .page {
@@ -189,6 +190,19 @@ code {
 
 hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
 
+@media (max-width: 600px) {
+  .page { padding: 2rem 1rem 4rem; }
+  .trees-row { grid-template-columns: 1fr; }
+  .pipeline { flex-wrap: nowrap; }
+  .widget { padding: 1rem; }
+  .code-block { font-size: 11px; padding: 1rem; }
+  .step-body { padding: 1rem; }
+  .fiber-visual { padding: 1rem; }
+  .fiber-row { flex-wrap: wrap; gap: 4px; }
+  .fiber-connector { display: none; }
+  .priority-row { gap: 6px; }
+}
+
 .callout {
   border-left: 2px solid var(--info-text);
   padding: 0.75rem 1rem;
@@ -235,7 +249,7 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
 .btn:hover { background: var(--bg3); }
 
 /* ── TREE DIFF ── */
-.trees-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.trees-row { display: grid; grid-template-columns: 1fr; gap: 1rem; }
 .tree-side-lbl { font-size: 11px; font-weight: 500; color: var(--text3); text-align: center; margin-bottom: 0.75rem; }
 .node-g { display: flex; flex-direction: column; align-items: center; gap: 0; }
 .node-row { display: flex; justify-content: center; gap: 6px; }
@@ -502,17 +516,6 @@ elementos.<span class="fn">forEach</span>((<span class="nb">e</span>) => {
     Repare que ao solicitar <code>offsetWidth</code>, o navegador é forçado a recalcular o layout da página antes de retornar o valor — percorrendo a árvore do DOM, calculando posições e tamanhos, e <strong>bloqueando a main thread</strong> até que o cálculo seja concluído.
   </p>
 
-  <!-- Widget: Simulador de thrashing -->
-  <div class="widget" style="background:var(--bg)">
-    <div class="widget-row">
-      <span class="widget-title">Simulador de reflows</span>
-      <button class="btn" onclick="runThrash()">Executar loop →</button>
-    </div>
-    <div id="thrash-items"></div>
-    <div class="thrash-big">Reflows forçados: <span id="reflow-count">0</span></div>
-    <div style="font-size:11px;color:var(--text3);margin-top:6px" id="n-note">n = 5 elementos</div>
-    <input type="range" min="2" max="8" value="5" id="n-range" style="width:100%;margin-top:8px" oninput="updateN(this.value)">
-  </div>
 
   <h3>A solução: separar leituras de escritas</h3>
   <p>
@@ -579,22 +582,6 @@ elementos.<span class="fn">forEach</span>((<span class="nb">e</span>, <span clas
   <p>
     Telas a 60fps exigem que cada frame seja processado em menos de <strong>16.6ms</strong>. O modelo síncrono do Stack Reconciler não conseguia garantir isso em árvores complexas — o Fiber resolve ao tornar o trabalho interruptível.
   </p>
-
-  <p>Isso permite ao React <strong>priorizar trabalho</strong>:</p>
-
-  <div class="priority-row">
-    <span class="pchip hi">Alta prioridade</span>
-    <span class="pchip sep">→</span>
-    <span class="pchip hi">Animações</span>
-    <span class="pchip hi">Input do usuário</span>
-  </div>
-  <div class="priority-row">
-    <span class="pchip lo">Baixa prioridade</span>
-    <span class="pchip sep">→</span>
-    <span class="pchip lo">Fetch de dados</span>
-    <span class="pchip lo">startTransition</span>
-    <span class="pchip lo">Renders em background</span>
-  </div>
 
   <h3>Work-in-progress tree</h3>
   <p>
@@ -707,47 +694,7 @@ function updateN(v) {
   buildItems(nVal);
   document.getElementById('n-note').textContent = `n = ${nVal} elementos`;
 }
-function buildItems(n) {
-  const c = document.getElementById('thrash-items');
-  c.innerHTML = '';
-  for (let i = 0; i < n; i++) {
-    const row = document.createElement('div');
-    row.className = 'thrash-item';
-    row.innerHTML = `<span style="color:var(--text3);min-width:22px">e${i}</span><div class="thrash-bar" id="tb-${i}" style="width:80px"></div><span class="thrash-cost" id="tc-${i}">—</span>`;
-    c.appendChild(row);
-  }
-  document.getElementById('reflow-count').textContent = '0';
-}
-buildItems(5);
-function runThrash() {
-  if (thrashRunning) return;
-  thrashRunning = true;
-  let count = 0;
-  document.getElementById('reflow-count').textContent = '0';
-  for (let i = 0; i < nVal; i++) {
-    const b = document.getElementById(`tb-${i}`);
-    const c = document.getElementById(`tc-${i}`);
-    if (b) b.style.width = '80px';
-    if (c) c.textContent = '—';
-  }
-  let i = 0;
-  function tick() {
-    if (i >= nVal) { thrashRunning = false; return; }
-    const b = document.getElementById(`tb-${i}`);
-    const c = document.getElementById(`tc-${i}`);
-    count++;
-    document.getElementById('reflow-count').textContent = count;
-    if (b) {
-      b.style.width = (40 + Math.random() * 120) + 'px';
-      b.classList.add('flash');
-      setTimeout(() => b.classList.remove('flash'), 400);
-    }
-    if (c) c.textContent = `reflow #${count}`;
-    i++;
-    setTimeout(tick, 220);
-  }
-  tick();
-}
+
 
 /* ═══ STEPPER ═══ */
 const steps = [
