@@ -201,6 +201,8 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
   .fiber-row { flex-wrap: wrap; gap: 4px; }
   .fiber-connector { display: none; }
   .priority-row { gap: 6px; }
+  .vmrow { grid-template-columns: 1fr; }
+  .vmconn { display: none; }
 }
 
 .callout {
@@ -363,6 +365,50 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
   width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
 }
 
+/* ── VDOM MIRROR ── */
+.vmrow { display: grid; grid-template-columns: 1fr 44px 1fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+.vm-node {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  line-height: 1.7;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  color: var(--text3);
+  opacity: 0.3;
+  transition: opacity 0.45s ease, background 0.45s ease, border-color 0.45s ease, color 0.45s ease;
+}
+.vm-str { color: #e08040; }
+.vm-node.vm-hi { background: var(--info-bg); border-color: var(--info-border); color: var(--info-text); opacity: 1; }
+.vm-node.vm-hi .vm-str { color: #e08040; }
+.vmconn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.vmconn-track { width: 100%; height: 2px; background: var(--border); position: relative; overflow: hidden; border-radius: 1px; }
+.vmconn-fill {
+  position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(to right, #e08040, var(--info-text));
+  transition: left 0.45s ease-in-out;
+}
+.vmconn-fill.go { left: 100%; }
+.vmconn-arr { font-size: 11px; color: var(--border2); opacity: 0; transition: opacity 0.3s, color 0.3s; user-select: none; line-height: 1; }
+.vmconn-arr.vm-hi { opacity: 1; color: var(--info-text); }
+.dm-node {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  line-height: 1.7;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  color: var(--text2);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.dm-node.dm-scan { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+.dm-t { color: #7c6af7; }
+.dm-a { color: #2db4a4; }
+.dm-sv { color: #e08040; }
+.mirror-cap { margin-top: 10px; font-size: 11.5px; color: var(--text3); text-align: center; min-height: 16px; transition: opacity 0.2s; }
+
 /* ── REFS ── */
 .refs { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border); }
 .refs-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 1rem; }
@@ -401,6 +447,40 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
   <p>
     Pense no Virtual DOM como uma <strong>cópia leve do DOM real</strong>, mantida inteiramente em memória como objetos JavaScript. Cada elemento da interface corresponde a um nó nessa árvore virtual — com tipo, propriedades e filhos, mas sem nenhum custo de renderização.
   </p>
+
+  <!-- Widget: VDOM Mirror -->
+  <div class="widget">
+    <div class="widget-row">
+      <span class="widget-title">VDOM como espelho do DOM</span>
+      <button class="btn" onclick="runMirror()">Animar cópia →</button>
+    </div>
+    <!-- Column headers -->
+    <div class="vmrow" style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--warn-text);text-align:center">DOM Real <span style="font-weight:400;text-transform:none;font-style:italic;letter-spacing:0">· nó do browser</span></div>
+      <div></div>
+      <div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--info-text);text-align:center">Virtual DOM <span style="font-weight:400;text-transform:none;font-style:italic;letter-spacing:0">· objeto JS</span></div>
+    </div>
+    <!-- Row 1: div -->
+    <div class="vmrow">
+      <div class="dm-node" id="dm0"><span class="dm-t">&lt;div</span> <span class="dm-a">class</span>=<span class="dm-sv">"card"</span><span class="dm-t">&gt;</span><br>&nbsp;&nbsp;<span style="opacity:.45;font-size:9.5px">…filhos…</span><br><span class="dm-t">&lt;/div&gt;</span></div>
+      <div class="vmconn"><div class="vmconn-track"><div class="vmconn-fill" id="mb0"></div></div><span class="vmconn-arr" id="ma0">→</span></div>
+      <div class="vm-node" id="vm0">{ type: <span class="vm-str">"div"</span>,<br>&nbsp;&nbsp;props: { className: <span class="vm-str">"card"</span> } }</div>
+    </div>
+    <!-- Row 2: h1 -->
+    <div class="vmrow">
+      <div class="dm-node" id="dm1" style="margin-left:14px"><span class="dm-t">&lt;h1&gt;</span>Título<span class="dm-t">&lt;/h1&gt;</span></div>
+      <div class="vmconn"><div class="vmconn-track"><div class="vmconn-fill" id="mb1"></div></div><span class="vmconn-arr" id="ma1">→</span></div>
+      <div class="vm-node" id="vm1">{ type: <span class="vm-str">"h1"</span>,<br>&nbsp;&nbsp;children: [<span class="vm-str">"Título"</span>] }</div>
+    </div>
+    <!-- Row 3: p -->
+    <div class="vmrow">
+      <div class="dm-node" id="dm2" style="margin-left:14px"><span class="dm-t">&lt;p</span> <span class="dm-a">id</span>=<span class="dm-sv">"desc"</span><span class="dm-t">&gt;</span>Texto<span class="dm-t">&lt;/p&gt;</span></div>
+      <div class="vmconn"><div class="vmconn-track"><div class="vmconn-fill" id="mb2"></div></div><span class="vmconn-arr" id="ma2">→</span></div>
+      <div class="vm-node" id="vm2">{ type: <span class="vm-str">"p"</span>,<br>&nbsp;&nbsp;props: { id: <span class="vm-str">"desc"</span> } }</div>
+    </div>
+    <div class="mirror-cap" id="mirror-cap">Cada nó do DOM tem um objeto leve correspondente no VDOM</div>
+  </div>
+
   <p>
     No React, quando o estado de um componente muda, uma nova árvore virtual é gerada. O algoritmo de <strong>reconciliação</strong> compara essa nova árvore com a anterior e calcula o conjunto mínimo de operações necessárias para sincronizar o DOM real. <span class="ref">1</span>
   </p>
@@ -566,7 +646,7 @@ elementos.<span class="fn">forEach</span>((<span class="nb">e</span>, <span clas
   <div class="section-label">React Fiber — o motor atual</div>
 
   <p>
-    O algoritmo original (Stack Reconciler) percorria a árvore de forma <strong>recursiva e síncrona</strong>. Em árvores grandes, isso bloqueava a main thread por tempo suficiente para causar frames perdidos. <span class="ref">3</span>
+    O algoritmo original (Stack Reconciler) tinha algumas problemáticas relevantes. Não conseguia priorizar processamentos/interações relevantes, o que por vezes fazia com que a exibição de um tooltip fosse mais importante que uma interação do usuário na tela. Além disso ele percorria a árvore de forma <strong>recursiva e síncrona</strong>. Em árvores grandes, isso bloqueava a main thread por tempo suficiente para causar frames perdidos. <span class="ref">3</span>
   </p>
   <p>
     Com React 16 (setembro de 2017), o <strong>Fiber</strong> reescreveu o reconciliador do zero. A ideia central: cada componente vira uma <em>fiber</em> — um objeto JavaScript que representa um <em>virtual stack frame</em>, podendo ser pausado, retomado ou abortado. <span class="ref">3</span>
@@ -642,14 +722,14 @@ function runDiff() {
   setTimeout(() => {
     ['old-p','new-p'].forEach(id => document.getElementById(id).classList.add('hl'));
     s.textContent = 'Diferença encontrada: conteúdo de <p> mudou';
-  }, 1400);
+  }, 2000);
   setTimeout(() => {
     document.getElementById('old-btn').classList.add('removed');
     const ni = document.getElementById('new-icon');
     ni.style.opacity = '1'; ni.classList.add('added');
     s.textContent = '<button> removido, <Icon> adicionado';
-  }, 2300);
-  setTimeout(() => s.textContent = '✓ DOM real atualizado em 2 operações — não em 7', 3300);
+  }, 3700);
+  setTimeout(() => s.textContent = '✓ DOM real atualizado em 2 operações', 5000);
 }
 function resetDiff() {
   diffDone = false;
@@ -755,6 +835,36 @@ function renderStepper() {
 function stepNext() { curStep = Math.min(curStep + 1, steps.length - 1); renderStepper(); }
 function stepPrev() { curStep = Math.max(curStep - 1, 0); renderStepper(); }
 renderStepper();
+
+/* ═══ VDOM MIRROR ═══ */
+let mirrorDone = false;
+function runMirror() {
+  if (mirrorDone) { resetMirror(); setTimeout(runMirror, 150); return; }
+  mirrorDone = true;
+  const cap = document.getElementById('mirror-cap');
+  const tags = ['div.card', 'h1', 'p#desc'];
+  [0, 1, 2].forEach(i => {
+    const t = i * 1150;
+    setTimeout(() => {
+      document.getElementById('dm' + i).classList.add('dm-scan');
+      cap.textContent = 'Copiando <' + tags[i] + '> para o VDOM...';
+    }, t);
+    setTimeout(() => document.getElementById('mb' + i).classList.add('go'), t + 300);
+    setTimeout(() => document.getElementById('ma' + i).classList.add('vm-hi'), t + 560);
+    setTimeout(() => document.getElementById('vm' + i).classList.add('vm-hi'), t + 700);
+  });
+  
+}
+function resetMirror() {
+  mirrorDone = false;
+  [0, 1, 2].forEach(i => {
+    document.getElementById('dm' + i).classList.remove('dm-scan');
+    document.getElementById('mb' + i).classList.remove('go');
+    document.getElementById('ma' + i).classList.remove('vm-hi');
+    document.getElementById('vm' + i).classList.remove('vm-hi');
+  });
+  document.getElementById('mirror-cap').textContent = 'Cada nó do DOM tem um objeto leve correspondente no VDOM';
+}
 
 /* ═══ FIBER ANIMATION ═══ */
 let fiberRunning = false;
