@@ -1079,5 +1079,89 @@ function animateFiber() {
   }, 3500);
 }
 </script>
+
+<!-- Floating heart button -->
+<style>
+  #heart-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: #1a1a2e;
+    box-shadow: 0 2px 12px rgba(0,0,0,.45);
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .15s ease, box-shadow .15s ease;
+    z-index: 999;
+  }
+  #heart-btn:hover { transform: scale(1.12); box-shadow: 0 4px 18px rgba(0,0,0,.55); }
+  #heart-btn.liked { animation: heartPop .35s ease forwards; }
+  @keyframes heartPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.4); }
+    70%  { transform: scale(.9); }
+    100% { transform: scale(1); }
+  }
+  #heart-toast {
+    position: fixed;
+    bottom: 90px;
+    right: 28px;
+    background: #1a1a2e;
+    color: #e2e8f0;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.4);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .25s ease, transform .25s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+  }
+  #heart-toast.show { opacity: 1; transform: translateY(0); }
+</style>
+
+<button id="heart-btn" title="Curtiu o artigo?" aria-label="Curtir artigo">🤍</button>
+<div id="heart-toast">Obrigado pelo feedback! ❤️</div>
+
+<script>
+  (function () {
+    const btn = document.getElementById('heart-btn');
+    const toast = document.getElementById('heart-toast');
+    let liked = false;
+    let toastTimer;
+
+    btn.addEventListener('click', function () {
+      liked = !liked;
+      btn.textContent = liked ? '❤️' : '🤍';
+      btn.classList.remove('liked');
+      void btn.offsetWidth; // force reflow to restart animation
+      btn.classList.add('liked');
+
+      gtag('event', liked ? 'article_like' : 'article_unlike', {
+        article: 'virtual-dom-react',
+        action: liked ? 'like' : 'unlike'
+      });
+
+      if (liked) {
+        toast.classList.add('show');
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+          btn.style.transition = 'opacity .4s ease, transform .4s ease';
+          btn.style.opacity = '0';
+          btn.style.transform = 'scale(.6)';
+          setTimeout(() => btn.style.display = 'none', 400);
+        }, 2500);
+      }
+    });
+  })();
+</script>
 </body>
 </html>
