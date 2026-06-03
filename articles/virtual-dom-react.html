@@ -790,6 +790,7 @@ elementos.<span class="fn">forEach</span>((<span class="nb">e</span>, <span clas
 let directDone = false;
 function runDirectDom() {
   if (directDone) { resetDirectDom(); setTimeout(runDirectDom, 120); return; }
+  gtag('event', 'widget_click', { widget_name: 'direct_dom', article: 'virtual-dom-react' });
   directDone = true;
   let count = 0;
   const counterEl = document.getElementById('reflow-counter');
@@ -822,6 +823,7 @@ function resetDirectDom() {
 let vbatchDone = false;
 function runVdomBatch() {
   if (vbatchDone) { resetVbatch(); setTimeout(runVdomBatch, 120); return; }
+  gtag('event', 'widget_click', { widget_name: 'vdom_batch', article: 'virtual-dom-react' });
   vbatchDone = true;
   const statusEl = document.getElementById('vbatch-status');
   statusEl.textContent = 'Enfileirando mudanças no estado JS — DOM intocado...';
@@ -857,6 +859,7 @@ function resetVbatch() {
 let cycleDone = false;
 function runCycle() {
   if (cycleDone) { resetCycle(); setTimeout(runCycle, 120); return; }
+  gtag('event', 'widget_click', { widget_name: 'setState_cycle', article: 'virtual-dom-react' });
   cycleDone = true;
   const chips = ['cchip-0','cchip-1','cchip-2','cchip-3'];
   const s = document.getElementById('cycle-status');
@@ -1008,6 +1011,7 @@ renderStepper();
 let mirrorDone = false;
 function runMirror() {
   if (mirrorDone) { resetMirror(); setTimeout(runMirror, 150); return; }
+  gtag('event', 'widget_click', { widget_name: 'vdom_mirror', article: 'virtual-dom-react' });
   mirrorDone = true;
   const cap = document.getElementById('mirror-cap');
   const tags = ['div.card', 'h1', 'p#desc'];
@@ -1040,6 +1044,7 @@ const fwIds = ['fw-app','fw-list','fw-item'];
 const fcIds = ['fc-app','fc-list','fc-item'];
 function animateFiber() {
   if (fiberRunning) return;
+  gtag('event', 'widget_click', { widget_name: 'fiber_scheduler', article: 'virtual-dom-react' });
   fiberRunning = true;
   const phase = document.getElementById('fiber-phase');
   // Reset
