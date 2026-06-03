@@ -409,6 +409,60 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
 .dm-sv { color: #e08040; }
 .mirror-cap { margin-top: 10px; font-size: 11.5px; color: var(--text3); text-align: center; min-height: 16px; transition: opacity 0.2s; }
 
+/* ── DOM DIRECT OPS ── */
+.dom-op-row { display:flex; align-items:center; gap:8px; }
+.dom-op-code {
+  flex:1; font-family:'JetBrains Mono',monospace; font-size:11px;
+  padding:5px 10px; border-radius:var(--radius); background:var(--bg);
+  border:0.5px solid var(--border); color:var(--text3); transition:all 0.3s;
+}
+.dom-op-code.lit { color:var(--text2); border-color:var(--border2); }
+.dom-reflow-badge {
+  font-size:10px; font-weight:500; padding:3px 8px; border-radius:4px;
+  background:var(--danger-bg); border:0.5px solid var(--danger-border);
+  color:var(--danger-text); white-space:nowrap; opacity:0; transition:opacity 0.25s; flex-shrink:0;
+}
+.dom-reflow-badge.show { opacity:1; }
+
+/* ── VBATCH ── */
+.vbatch-row { display:grid; grid-template-columns:1fr 28px 1fr 28px 1fr; align-items:start; gap:4px; }
+.vbatch-phase {
+  padding:12px 10px; border-radius:var(--radius); border:0.5px solid var(--border);
+  background:var(--bg); text-align:center; transition:all 0.35s;
+}
+.vbatch-phase.vb-collect { border-color:var(--info-border); background:var(--info-bg); }
+.vbatch-phase.vb-diff    { border-color:var(--warn-border); background:var(--warn-bg); }
+.vbatch-phase.vb-patch   { border-color:var(--success-border); background:var(--success-bg); }
+.vbatch-ph-title { font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:.07em; color:var(--text3); margin-bottom:8px; }
+.vbatch-ph-note { font-size:10px; color:var(--text3); margin-top:6px; line-height:1.4; }
+.vbatch-arr { display:flex; align-items:center; justify-content:center; padding-top:20px; color:var(--text3); font-size:12px; }
+.vbatch-item {
+  display:inline-block; font-size:10px; padding:2px 6px; border-radius:3px; margin:2px;
+  background:var(--bg2); border:0.5px solid var(--border); color:var(--text3);
+  transition:all 0.3s; font-family:'JetBrains Mono',monospace;
+}
+.vbatch-item.lit { background:var(--info-bg); border-color:var(--info-border); color:var(--info-text); }
+.vbatch-num { font-size:24px; font-weight:500; transition:all 0.3s; margin:6px 0; }
+
+/* ── CYCLE ── */
+.cycle-bar { display:flex; align-items:center; overflow-x:auto; padding:4px 0; flex-wrap:nowrap; gap:0; margin-bottom:1rem; }
+.cycle-chip {
+  flex:1; min-width:64px; padding:7px 6px; border-radius:var(--radius);
+  border:0.5px solid var(--border); background:var(--bg);
+  font-size:10.5px; font-weight:500; color:var(--text3); text-align:center;
+  white-space:nowrap; transition:all 0.3s;
+}
+.cycle-chip.cy-act  { background:var(--info-bg); border-color:var(--info-border); color:var(--info-text); }
+.cycle-chip.cy-done { background:var(--success-bg); border-color:var(--success-border); color:var(--success-text); }
+.cycle-conn { color:var(--text3); font-size:11px; padding:0 3px; flex-shrink:0; }
+.trees-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+@media (max-width: 600px) {
+  .vbatch-row { grid-template-columns:1fr; }
+  .vbatch-arr { display:none; }
+  .trees-row-2 { grid-template-columns:1fr; }
+}
+
 /* ── REFS ── */
 .refs { margin-top: 3rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border); }
 .refs-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 1rem; }
@@ -427,7 +481,7 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
 <!-- ══ HEADER ══ -->
 <header class="article-header">
   <div class="article-kicker">Internals do React</div>
-  <h1 class="article-title">Virtual DOM: breve explicação</h1>
+  <h1 class="article-title">React: Virtual DOM</h1>
   <p class="article-lede">
     O Virtual DOM é uma abstração em JavaScript criada para resolver um problema fundamental: como aplicar mudanças de estado na interface sem forçar o browser a recalcular o layout a cada operação.
   </p>
@@ -481,70 +535,26 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
     <div class="mirror-cap" id="mirror-cap">Cada nó do DOM tem um objeto leve correspondente no VDOM</div>
   </div>
 
-  <p>
-    No React, quando o estado de um componente muda, uma nova árvore virtual é gerada. O algoritmo de <strong>reconciliação</strong> compara essa nova árvore com a anterior e calcula o conjunto mínimo de operações necessárias para sincronizar o DOM real. <span class="ref">1</span>
+  <p style="text-align: justify;">
+    No react, quando o estado de um componente muda, uma nova árvore virtual é gerada. É feito um processo de <strong>reconciliação</strong> - vamos falar dele logo adiante - comparando essa nova árvore com a anterior, calculando o conjunto mínimo de operações necessárias para sincronizar o DOM real. <span class="ref">1</span>
   </p>
   <p>
-    A chave está em <em>o que não acontece</em>: o browser não é chamado até que o diff esteja calculado. As operações são agrupadas e aplicadas em lote — minimizando reflows e repaints.
+    O ponto importante aqui é que o browser não é chamado até que o diff esteja calculado. 
+    Todas as alterações são calculadas primeiro no Virtual DOM. 
+    O react agrupa um conjunto de atualizações, aplica no VDOM e depois modifica no DOM real somente aquilo que foi alterado, minimizando <em>reflows</em> e <em>repaints</em>.
+    Porque isso? porque alterações no DOM real são custosas — cada mudança pode disparar um reflow, onde o browser precisa recalcular o layout de toda a página. 
+    O Virtual DOM é uma camada de otimização que permite ao React atualizar a interface de forma eficiente, exigindo o mínimo possível do browser - e obviamente do dispositivo, principalmente se for um device móvel.
   </p>
-
-  <!-- Widget: Diff de árvore -->
-  <div class="widget">
-    <div class="widget-row">
-      <span class="widget-title">Visualizar reconciliação</span>
-      <button class="btn" onclick="runDiff()">Disparar atualização de estado →</button>
-    </div>
-    <div class="trees-row">
-      <div>
-        <div class="tree-side-lbl">Árvore anterior</div>
-        <div class="node-g">
-          <div class="node-row"><div class="node-wrap"><div class="vnode" id="old-app">&lt;App&gt;</div><div class="node-line"></div></div></div>
-          <div class="node-row" style="gap:6px;margin-bottom:0">
-            <div class="node-wrap"><div class="vnode" id="old-hdr">&lt;Header&gt;</div><div class="node-line"></div></div>
-            <div class="node-wrap"><div class="vnode" id="old-main">&lt;Main&gt;</div><div class="node-line"></div></div>
-          </div>
-          <div class="node-row" style="gap:6px">
-            <div class="node-wrap"><div class="vnode" id="old-h1">&lt;h1&gt; "Olá"</div></div>
-            <div class="node-wrap"><div class="vnode" id="old-p">&lt;p&gt; "texto"</div></div>
-            <div class="node-wrap"><div class="vnode" id="old-btn">&lt;button&gt;</div></div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="tree-side-lbl">Nova árvore</div>
-        <div class="node-g">
-          <div class="node-row"><div class="node-wrap"><div class="vnode" id="new-app">&lt;App&gt;</div><div class="node-line"></div></div></div>
-          <div class="node-row" style="gap:6px;margin-bottom:0">
-            <div class="node-wrap"><div class="vnode" id="new-hdr">&lt;Header&gt;</div><div class="node-line"></div></div>
-            <div class="node-wrap"><div class="vnode" id="new-main">&lt;Main&gt;</div><div class="node-line"></div></div>
-          </div>
-          <div class="node-row" style="gap:6px">
-            <div class="node-wrap"><div class="vnode" id="new-h1">&lt;h1&gt; "Olá"</div></div>
-            <div class="node-wrap"><div class="vnode" id="new-p">&lt;p&gt; "novo!"</div></div>
-            <div class="node-wrap"><div class="vnode" id="new-icon" style="opacity:0">&lt;Icon&gt;</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="diff-legend">
-      <span><span class="dot dot-w"></span>modificado</span>
-      <span><span class="dot dot-s"></span>adicionado</span>
-      <span><span class="dot dot-d"></span>removido</span>
-    </div>
-    <div class="diff-status" id="diff-status">Pressione o botão para simular uma mudança de estado</div>
-  </div>
-</div>
-
-<hr>
+</br>
 
 <!-- ══ SEÇÃO 2: REFLOW ══ -->
 <div class="section">
-  <div class="section-label">O que é um reflow</div>
+  <div class="section-label">O que é um reflow?</div>
 
   <p>
     É o processo em que o browser <strong>recalcula a posição e o tamanho de todos os elementos afetados</strong> para reconstruir a árvore de layout. O browser possui um pipeline de renderização com etapas bem definidas:
   </p>
-
+  
   <!-- Widget: Pipeline animado -->
   <div class="pipeline" id="pipeline" style="margin:1.5rem 0">
     <div class="pipe-step"><div class="pipe-box" id="p-js">JavaScript</div><div class="pipe-lbl" id="l-js"></div></div>
@@ -573,12 +583,151 @@ hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
   </p>
 </div>
 
-<hr>
 
-<!-- ══ SEÇÃO 3: LAYOUT THRASHING ══ -->
+
+
+  <p>
+    Veja dois cenários ilustrativos: o primeiro faz 5 mudanças diretas no DOM, disparando 5 reflows. O segundo simula o mesmo comportamento usando um Virtual DOM, onde as mudanças são coletadas e aplicadas em lote, resultando em apenas 1 reflow.
+  </p>
+  <!-- Widget 1: DOM direto — cada escrita dispara um reflow -->
+  <div class="widget">
+    <div class="widget-row">
+      <span class="widget-title">DOM direto — 1 escrita = 1 reflow</span>
+      <button class="btn" onclick="runDirectDom()">Executar 5 escritas →</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <div class="dom-op-row"><div class="dom-op-code" id="dop-0">el.style.fontSize = '18px'</div><div class="dom-reflow-badge" id="drb-0">REFLOW</div></div>
+      <div class="dom-op-row"><div class="dom-op-code" id="dop-1">el.style.color = 'red'</div><div class="dom-reflow-badge" id="drb-1">REFLOW</div></div>
+      <div class="dom-op-row"><div class="dom-op-code" id="dop-2">el.innerHTML = 'novo texto'</div><div class="dom-reflow-badge" id="drb-2">REFLOW</div></div>
+      <div class="dom-op-row"><div class="dom-op-code" id="dop-3">list.appendChild(newItem)</div><div class="dom-reflow-badge" id="drb-3">REFLOW</div></div>
+      <div class="dom-op-row"><div class="dom-op-code" id="dop-4">el.style.margin = '10px'</div><div class="dom-reflow-badge" id="drb-4">REFLOW</div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.85rem;padding-top:0.75rem;border-top:0.5px solid var(--border)">
+      <span style="font-size:12px;color:var(--text3)">Reflows disparados</span>
+      <span id="reflow-counter" style="font-size:22px;font-weight:600;color:var(--danger-text);transition:all 0.15s">0</span>
+    </div>
+    <div id="direct-status" style="margin-top:0.5rem;font-size:12px;color:var(--text2);text-align:center;min-height:18px"></div>
+  </div>
+
+  <!-- Widget 2: Virtual DOM — mesmas mudanças, custo mínimo -->
+  <div class="widget">
+    <div class="widget-row">
+      <span class="widget-title">Virtual DOM — mesmas mudanças, custo mínimo</span>
+      <button class="btn" onclick="runVdomBatch()">Simular com VDOM →</button>
+    </div>
+    <div class="vbatch-row">
+      <div class="vbatch-phase" id="vbp-collect">
+        <div class="vbatch-ph-title">Estado JS</div>
+        <div>
+          <span class="vbatch-item" id="vbi-0">fontSize</span>
+          <span class="vbatch-item" id="vbi-1">color</span>
+          <span class="vbatch-item" id="vbi-2">innerHTML</span>
+          <span class="vbatch-item" id="vbi-3">append</span>
+          <span class="vbatch-item" id="vbi-4">margin</span>
+        </div>
+        <div class="vbatch-ph-note">5 mudanças enfileiradas<br>sem tocar no DOM</div>
+      </div>
+      <div class="vbatch-arr">→</div>
+      <div class="vbatch-phase" id="vbp-diff">
+        <div class="vbatch-ph-title">Reconciliação</div>
+        <div class="vbatch-num" style="color:var(--warn-text)">1×</div>
+        <div class="vbatch-ph-note">ciclo de diff<br>calcula o mínimo</div>
+      </div>
+      <div class="vbatch-arr">→</div>
+      <div class="vbatch-phase" id="vbp-patch">
+        <div class="vbatch-ph-title">DOM Real</div>
+        <div class="vbatch-num" id="vbn-patch" style="color:var(--success-text)">—</div>
+        <div class="vbatch-ph-note" id="vbp-note">aguardando…</div>
+      </div>
+    </div>
+    <div id="vbatch-status" style="margin-top:0.75rem;font-size:12px;color:var(--text2);text-align:center;min-height:18px"></div>
+  </div>
+</div>
+
+<p>O Virtual DOM tem justamente o objetivo de minimizar esse impacto, armazenando alterações em estruturas JavaScript, calculando apenas o que mudou e aplicando as mudanças no DOM real de maneira <strong>otimizada e em lote</strong>. E isso é feito através do algoritmo de reconciliação e que a partir do React 16 vem com o motor Fiber</p>
+
+</br>
+
+
+<!-- ══ SEÇÃO 4: RECONCILIAÇÃO ══ -->
+<div class="section">
+  <div class="section-label">Reconciliação — o algoritmo de diff</div>
+
+  <p>
+    O React aplica heurísticas para transformar um problema O(n³) — comparação exata de duas árvores — em <strong>O(n)</strong>, percorrendo cada nó apenas uma vez. <span class="ref">1</span>
+  </p>
+
+  <!-- Widget: Stepper de heurísticas -->
+  <div class="step-pills" id="step-pills"></div>
+  <div class="step-body" id="step-body"></div>
+  <div class="step-nav">
+    <button class="btn" onclick="stepPrev()">← anterior</button>
+    <span class="step-count" id="step-count">1 / 4</span>
+    <button class="btn" onclick="stepNext()">próximo →</button>
+  </div>
+</div>
+
+</br>
+
+<!-- ══ SEÇÃO 5: REACT FIBER ══ -->
+<div class="section">
+  <div class="section-label">React Fiber — o motor atual</div>
+
+  <p>
+    O algoritmo original (Stack Reconciler) tinha algumas problemáticas relevantes. Não conseguia priorizar processamentos/interações relevantes, o que por vezes fazia com que a exibição de um tooltip fosse mais importante que uma interação do usuário na tela. Além disso, ele percorria a árvore de forma <strong>recursiva e síncrona</strong>. Em árvores grandes, isso bloqueava a main thread por tempo suficiente para causar frames perdidos. <span class="ref">3</span>
+  </p>
+  <p>
+    Com React 16 (setembro de 2017), o <strong>Fiber</strong> reescreveu o reconciliador do zero. A ideia central: cada componente vira uma <em>fiber</em> — um objeto JavaScript que representa um <em>virtual stack frame</em>, podendo ser pausado, retomado ou abortado. <span class="ref">3</span>
+  </p>
+  <p>
+    Nas palavras de Andrew Clark, autor do Fiber:
+  </p>
+  <div class="callout" style="border-color:var(--text3)">
+    <p style="font-family:'Lora',serif;font-style:italic;font-size:15px;line-height:1.75;color:var(--text2)">"Fiber is a reimplementation of the stack, specialized for React components. You can think of a single fiber as a virtual stack frame. The advantage of reimplementing the stack is that you can keep stack frames in memory and execute them however and whenever you want."</p>
+    <p style="font-size:12px;color:var(--text3);margin-top:0.5rem">— Andrew Clark, React Fiber Architecture <span class="ref">3</span></p>
+  </div>
+
+  <h3>Work-in-progress tree</h3>
+  <p>
+    Durante uma atualização, o React constrói uma nova árvore de fibers em paralelo — sem tocar na árvore atual (<em>current tree</em>). Só quando o trabalho está completo a nova árvore é "comitada" para o DOM. <span class="ref">4</span>
+  </p>
+
+  <!-- Widget: Fiber visual -->
+  <div class="fiber-visual">
+    <div class="widget-row" style="margin-bottom:1rem">
+      <span class="widget-title">Ciclo de atualização do Fiber</span>
+      <button class="btn" onclick="animateFiber()">Simular setState →</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:1rem" id="fiber-phase">Fase 1 — render (interruptível)</div>
+    <div class="fiber-row">
+      <span style="font-size:10px;color:var(--text3);min-width:80px">current tree</span>
+      <div class="fiber-node current" id="fc-app">&lt;App&gt;</div>
+      <div class="fiber-connector"></div>
+      <div class="fiber-node current" id="fc-list">&lt;List&gt;</div>
+      <div class="fiber-connector"></div>
+      <div class="fiber-node current" id="fc-item">&lt;Item&gt;</div>
+    </div>
+    <div class="fiber-row" style="margin-top:4px">
+      <span style="font-size:10px;color:var(--text3);min-width:80px">work-in-progress</span>
+      <div class="fiber-node" id="fw-app">&lt;App&gt;</div>
+      <div class="fiber-connector"></div>
+      <div class="fiber-node" id="fw-list">&lt;List&gt;</div>
+      <div class="fiber-connector"></div>
+      <div class="fiber-node" id="fw-item">&lt;Item&gt;</div>
+    </div>
+    <div class="fiber-legend">
+      <span><div class="fleg-dot" style="background:var(--info-bg);border:1px solid var(--info-border)"></div>current (DOM atual)</span>
+      <span><div class="fleg-dot" style="background:var(--warn-bg);border:1px solid var(--warn-border)"></div>work-in-progress (em cálculo)</span>
+      <span><div class="fleg-dot" style="background:var(--success-bg);border:1px solid var(--success-border)"></div>commit (aplicado ao DOM)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SEÇÃO 3: LAYOUT THRASHING ══ 
 <div class="section">
   <div class="section-label">Layout thrashing</div>
 
+  <p>Vou deixar aqui como exemplo um péssimo cenário</p>
   <p>
     O código abaixo implementa um dos piores cenários possíveis, conhecido como <strong>layout thrashing</strong>: ler (<code>offsetWidth</code>) e escrever (<code>style</code>) no DOM dentro de um loop. A cada iteração, o browser invalida o cálculo anterior e precisa recomputar o layout, multiplicando o custo por <em>n</em>.
   </p>
@@ -614,90 +763,7 @@ elementos.<span class="fn">forEach</span>((<span class="nb">e</span>, <span clas
   <div class="callout">
     <p>💡 Para buscas pontuais, prefira <code>getElementById</code>: navegadores mantêm índices internos para IDs, tornando a busca O(1) em vez de O(n). <span class="ref">2</span></p>
   </div>
-</div>
-
-<hr>
-
-<!-- ══ SEÇÃO 4: RECONCILIAÇÃO ══ -->
-<div class="section">
-  <div class="section-label">Reconciliação — o algoritmo de diff</div>
-
-  <p>
-    O Virtual DOM tem justamente o objetivo de minimizar esse impacto, armazenando alterações em estruturas JavaScript, calculando apenas o que mudou e aplicando as mudanças no DOM real de maneira <strong>otimizada e em lote</strong>.
-  </p>
-  <p>
-    O React aplica heurísticas para transformar um problema O(n³) — comparação exata de duas árvores — em <strong>O(n)</strong>, percorrendo cada nó apenas uma vez. <span class="ref">1</span>
-  </p>
-
-  <!-- Widget: Stepper de heurísticas -->
-  <div class="step-pills" id="step-pills"></div>
-  <div class="step-body" id="step-body"></div>
-  <div class="step-nav">
-    <button class="btn" onclick="stepPrev()">← anterior</button>
-    <span class="step-count" id="step-count">1 / 4</span>
-    <button class="btn" onclick="stepNext()">próximo →</button>
-  </div>
-</div>
-
-<hr>
-
-<!-- ══ SEÇÃO 5: REACT FIBER ══ -->
-<div class="section">
-  <div class="section-label">React Fiber — o motor atual</div>
-
-  <p>
-    O algoritmo original (Stack Reconciler) tinha algumas problemáticas relevantes. Não conseguia priorizar processamentos/interações relevantes, o que por vezes fazia com que a exibição de um tooltip fosse mais importante que uma interação do usuário na tela. Além disso ele percorria a árvore de forma <strong>recursiva e síncrona</strong>. Em árvores grandes, isso bloqueava a main thread por tempo suficiente para causar frames perdidos. <span class="ref">3</span>
-  </p>
-  <p>
-    Com React 16 (setembro de 2017), o <strong>Fiber</strong> reescreveu o reconciliador do zero. A ideia central: cada componente vira uma <em>fiber</em> — um objeto JavaScript que representa um <em>virtual stack frame</em>, podendo ser pausado, retomado ou abortado. <span class="ref">3</span>
-  </p>
-  <p>
-    Nas palavras de Andrew Clark, autor do Fiber:
-  </p>
-  <div class="callout" style="border-color:var(--text3)">
-    <p style="font-family:'Lora',serif;font-style:italic;font-size:15px;line-height:1.75;color:var(--text2)">"Fiber is a reimplementation of the stack, specialized for React components. You can think of a single fiber as a virtual stack frame. The advantage of reimplementing the stack is that you can keep stack frames in memory and execute them however and whenever you want."</p>
-    <p style="font-size:12px;color:var(--text3);margin-top:0.5rem">— Andrew Clark, React Fiber Architecture <span class="ref">3</span></p>
-  </div>
-
-  <p>
-    Telas a 60fps exigem que cada frame seja processado em menos de <strong>16.6ms</strong>. O modelo síncrono do Stack Reconciler não conseguia garantir isso em árvores complexas — o Fiber resolve ao tornar o trabalho interruptível.
-  </p>
-
-  <h3>Work-in-progress tree</h3>
-  <p>
-    Durante uma atualização, o React constrói uma nova árvore de fibras em paralelo — sem tocar na árvore atual (<em>current tree</em>). Só quando o trabalho está completo a nova árvore é "comitada" para o DOM. <span class="ref">4</span>
-  </p>
-
-  <!-- Widget: Fiber visual -->
-  <div class="fiber-visual">
-    <div class="widget-row" style="margin-bottom:1rem">
-      <span class="widget-title">Ciclo de atualização do Fiber</span>
-      <button class="btn" onclick="animateFiber()">Simular setState →</button>
-    </div>
-    <div style="font-size:11px;color:var(--text3);margin-bottom:1rem" id="fiber-phase">Fase 1 — render (interruptível)</div>
-    <div class="fiber-row">
-      <span style="font-size:10px;color:var(--text3);min-width:80px">current tree</span>
-      <div class="fiber-node current" id="fc-app">&lt;App&gt;</div>
-      <div class="fiber-connector"></div>
-      <div class="fiber-node current" id="fc-list">&lt;List&gt;</div>
-      <div class="fiber-connector"></div>
-      <div class="fiber-node current" id="fc-item">&lt;Item&gt;</div>
-    </div>
-    <div class="fiber-row" style="margin-top:4px">
-      <span style="font-size:10px;color:var(--text3);min-width:80px">work-in-progress</span>
-      <div class="fiber-node" id="fw-app">&lt;App&gt;</div>
-      <div class="fiber-connector"></div>
-      <div class="fiber-node" id="fw-list">&lt;List&gt;</div>
-      <div class="fiber-connector"></div>
-      <div class="fiber-node" id="fw-item">&lt;Item&gt;</div>
-    </div>
-    <div class="fiber-legend">
-      <span><div class="fleg-dot" style="background:var(--info-bg);border:1px solid var(--info-border)"></div>current (DOM atual)</span>
-      <span><div class="fleg-dot" style="background:var(--warn-bg);border:1px solid var(--warn-border)"></div>work-in-progress (em cálculo)</span>
-      <span><div class="fleg-dot" style="background:var(--success-bg);border:1px solid var(--success-border)"></div>commit (aplicado ao DOM)</span>
-    </div>
-  </div>
-</div>
+</div> -->
 
 <!-- ══ REFS ══ -->
 <div class="refs">
@@ -711,34 +777,127 @@ elementos.<span class="fn">forEach</span>((<span class="nb">e</span>, <span clas
 </div><!-- /page -->
 
 <script>
-/* ═══ DIFF ANIMATION ═══ */
-let diffDone = false;
-function runDiff() {
-  if (diffDone) { resetDiff(); setTimeout(runDiff, 120); return; }
-  diffDone = true;
-  const s = document.getElementById('diff-status');
-  s.textContent = 'Gerando nova árvore virtual...';
-  setTimeout(() => s.textContent = 'Executando diff entre árvores...', 700);
+/* ═══ DIRECT DOM ═══ */
+let directDone = false;
+function runDirectDom() {
+  if (directDone) { resetDirectDom(); setTimeout(runDirectDom, 120); return; }
+  directDone = true;
+  let count = 0;
+  const counterEl = document.getElementById('reflow-counter');
+  const statusEl = document.getElementById('direct-status');
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      document.getElementById('dop-' + i).classList.add('lit');
+      setTimeout(() => {
+        document.getElementById('drb-' + i).classList.add('show');
+        count++;
+        counterEl.textContent = count;
+      }, 220);
+    }, i * 550);
+  }
   setTimeout(() => {
-    ['old-p','new-p'].forEach(id => document.getElementById(id).classList.add('hl'));
-    s.textContent = 'Diferença encontrada: conteúdo de <p> mudou';
-  }, 2000);
-  setTimeout(() => {
-    document.getElementById('old-btn').classList.add('removed');
-    const ni = document.getElementById('new-icon');
-    ni.style.opacity = '1'; ni.classList.add('added');
-    s.textContent = '<button> removido, <Icon> adicionado';
-  }, 3700);
-  setTimeout(() => s.textContent = '✓ DOM real atualizado em 2 operações', 5000);
+    statusEl.textContent = '5 escritas no DOM → 5 reflows → browser recalcula o layout a cada operação';
+  }, 5 * 550 + 100);
 }
-function resetDiff() {
-  diffDone = false;
-  ['old-p','old-btn','new-p','new-icon'].forEach(id => {
+function resetDirectDom() {
+  directDone = false;
+  for (let i = 0; i < 5; i++) {
+    document.getElementById('dop-' + i).classList.remove('lit');
+    document.getElementById('drb-' + i).classList.remove('show');
+  }
+  document.getElementById('reflow-counter').textContent = '0';
+  document.getElementById('direct-status').textContent = '';
+}
+
+/* ═══ VDOM BATCH ═══ */
+let vbatchDone = false;
+function runVdomBatch() {
+  if (vbatchDone) { resetVbatch(); setTimeout(runVdomBatch, 120); return; }
+  vbatchDone = true;
+  const statusEl = document.getElementById('vbatch-status');
+  statusEl.textContent = 'Enfileirando mudanças no estado JS — DOM intocado...';
+  document.getElementById('vbp-collect').classList.add('vb-collect');
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => document.getElementById('vbi-' + i).classList.add('lit'), i * 180);
+  }
+  setTimeout(() => {
+    document.getElementById('vbp-collect').classList.remove('vb-collect');
+    document.getElementById('vbp-diff').classList.add('vb-diff');
+    statusEl.textContent = 'Reconciliação: comparando nova árvore VDOM com a anterior...';
+  }, 1400);
+  setTimeout(() => {
+    document.getElementById('vbp-diff').classList.remove('vb-diff');
+    document.getElementById('vbp-patch').classList.add('vb-patch');
+    document.getElementById('vbn-patch').textContent = '1×';
+    document.getElementById('vbp-note').textContent = 'commit no DOM';
+    statusEl.textContent = '✓ 5 mudanças de estado → 1 ciclo de reconciliação → 1 commit aplicando só o diff';
+  }, 2900);
+}
+function resetVbatch() {
+  vbatchDone = false;
+  ['vbp-collect','vbp-diff','vbp-patch'].forEach(id => {
+    document.getElementById(id).classList.remove('vb-collect','vb-diff','vb-patch');
+  });
+  for (let i = 0; i < 5; i++) document.getElementById('vbi-' + i).classList.remove('lit');
+  document.getElementById('vbn-patch').textContent = '—';
+  document.getElementById('vbp-note').textContent = 'aguardando…';
+  document.getElementById('vbatch-status').textContent = 'Pressione para ver como o VDOM lida com as mesmas 5 mudanças';
+}
+
+/* ═══ CYCLE ═══ */
+let cycleDone = false;
+function runCycle() {
+  if (cycleDone) { resetCycle(); setTimeout(runCycle, 120); return; }
+  cycleDone = true;
+  const chips = ['cchip-0','cchip-1','cchip-2','cchip-3'];
+  const s = document.getElementById('cycle-status');
+  const msgs = [
+    'setState() chamado — React marca o componente como pendente de atualização',
+    'Nova árvore VDOM gerada em memória JS — o browser não é tocado ainda',
+    'Diff em execução: comparando árvore anterior com a nova...',
+    '✓ Patch aplicado — apenas 2 nós alterados foram escritos no DOM real'
+  ];
+  chips.forEach((id, i) => {
+    setTimeout(() => {
+      chips.slice(0, i).forEach(pid => {
+        document.getElementById(pid).classList.remove('cy-act');
+        document.getElementById(pid).classList.add('cy-done');
+      });
+      document.getElementById(id).classList.add('cy-act');
+      s.textContent = msgs[i];
+      if (i === 2) {
+        setTimeout(() => {
+          ['cold-p','cnew-p'].forEach(nid => document.getElementById(nid).classList.add('hl'));
+        }, 400);
+      }
+      if (i === 3) {
+        setTimeout(() => {
+          document.getElementById('cold-btn').classList.add('removed');
+          const ni = document.getElementById('cnew-icon');
+          ni.style.opacity = '1'; ni.classList.add('added');
+        }, 200);
+      }
+    }, i * 1300);
+  });
+  setTimeout(() => {
+    chips.forEach(id => {
+      document.getElementById(id).classList.remove('cy-act');
+      document.getElementById(id).classList.add('cy-done');
+    });
+  }, chips.length * 1300 + 200);
+}
+function resetCycle() {
+  cycleDone = false;
+  ['cchip-0','cchip-1','cchip-2','cchip-3'].forEach(id => {
+    document.getElementById(id).classList.remove('cy-act','cy-done');
+  });
+  ['cold-p','cnew-p','cold-btn','cnew-icon'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('hl','added','removed');
   });
-  document.getElementById('new-icon').style.opacity = '0';
-  document.getElementById('diff-status').textContent = 'Pressione o botão para simular uma mudança de estado';
+  const ni = document.getElementById('cnew-icon');
+  if (ni) ni.style.opacity = '0';
+  document.getElementById('cycle-status').textContent = 'Pressione o botão para simular uma mudança de estado';
 }
 
 /* ═══ PIPELINE ═══ */
@@ -760,9 +919,9 @@ function animatePipeline() {
           pipeLbls.forEach(p => document.getElementById(p).classList.remove('active'));
           pipeRunning = false;
           setTimeout(animatePipeline, 2000);
-        }, 700);
+        }, 900);
       }
-    }, i * 500);
+    }, i * 1000);
   });
 }
 setTimeout(animatePipeline, 900);
@@ -780,7 +939,7 @@ function updateN(v) {
 const steps = [
   {
     title: 'Heurística 1 — tipo de elemento',
-    body: `<p style="font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:1rem">Se dois nós têm <strong>tipos diferentes</strong> (ex: <code>&lt;div&gt;</code> virou <code>&lt;span&gt;</code>), o React descarta toda a subárvore e reconstrói do zero. A comparação para nesse nó — sem descer nos filhos.</p>
+    body: `<p style="font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:1rem">Se dois nós têm <strong>tipos diferentes</strong> (ex: <code>&lt;div&gt;</code> virou <code>&lt;span&gt;</code>), o React descarta a subárvore daquele nó e reconstrói do zero. A comparação para nesse nó — sem descer nos filhos.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <div style="flex:1;min-width:110px;padding:12px;border-radius:var(--radius);border:0.5px solid var(--danger-border);background:var(--danger-bg)"><div style="font-size:10px;color:var(--danger-text);margin-bottom:6px">antes</div><code>&lt;div&gt; … &lt;/div&gt;</code></div>
       <div style="display:flex;align-items:center;color:var(--text3);font-size:14px;padding:0 4px">→</div>
