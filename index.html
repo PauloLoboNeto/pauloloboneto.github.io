@@ -83,14 +83,43 @@
         color: var(--text3);
       }
 
-      .section-label {
+      .categories {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+      }
+
+      .category-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 0.5px solid var(--border);
+      }
+      .category-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .category-label {
         font-size: 11px;
         font-weight: 500;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--text3);
-        margin-bottom: 1rem;
       }
+      .category-count {
+        font-size: 10px;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text3);
+        margin-left: auto;
+      }
+
+      .c-frontend .category-dot { background: #185fa5; }
+      .c-ia       .category-dot { background: #7c6af7; }
+      .c-ds       .category-dot { background: #2db4a4; }
 
       .article-list {
         display: flex;
@@ -98,7 +127,6 @@
         gap: 2px;
       }
 
-      /* ── To add a new article: copy one <a class="article-card"> block ── */
       .article-card {
         display: block;
         padding: 1rem 1.25rem;
@@ -108,25 +136,25 @@
         color: inherit;
         transition: background 0.15s;
       }
-      .article-card:hover {
-        background: var(--bg2);
-      }
+      .article-card:hover { background: var(--bg2); }
 
       .article-card .title {
         font-size: 15px;
         font-weight: 500;
         color: var(--text);
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.3rem;
       }
       .article-card .desc {
         font-size: 13px;
         color: var(--text3);
-        margin-bottom: 0.5rem;
+        line-height: 1.5;
+        margin-bottom: 0.6rem;
       }
       .article-card .meta {
         display: flex;
-        gap: 12px;
+        gap: 8px;
         align-items: center;
+        flex-wrap: wrap;
       }
       .article-card .tag {
         font-size: 10px;
@@ -141,6 +169,16 @@
         font-size: 11px;
         color: var(--text3);
         font-family: "JetBrains Mono", monospace;
+        margin-left: auto;
+      }
+
+      .empty-state {
+        font-size: 13px;
+        color: var(--text3);
+        padding: 1rem 1.25rem;
+        border: 0.5px dashed var(--border);
+        border-radius: var(--radius-lg);
+        font-style: italic;
       }
     </style>
   </head>
@@ -150,17 +188,69 @@
       <p>Artigos sobre engenharia de software</p>
     </header>
 
-    <div class="section-label">Artigos</div>
+    <div class="categories">
 
-    <div class="article-list">
-      <a class="article-card" href="articles/virtual-dom-react.html">
-        <div class="title">React: Virtual DOM</div>
-        <div class="meta">
-          <span class="tag">React</span>
-          <span class="tag">Performance</span>
-          <span class="date">06/2026</span>
+      <!-- FRONTEND -->
+      <div class="c-frontend">
+        <div class="category-header">
+          <span class="category-dot"></span>
+          <span class="category-label">Frontend</span>
+          <span class="category-count">1 artigo</span>
         </div>
-      </a>
+        <div class="article-list">
+          <a class="article-card" href="articles/virtual-dom-react.html">
+            <div class="title">React: Virtual DOM</div>
+            <div class="desc">Como o React usa um espelho em memória do DOM para minimizar operações no browser — reconciliação, React Fiber e batching.</div>
+            <div class="meta">
+              <span class="tag">React</span>
+              <span class="tag">Performance</span>
+              <span class="date">06/2026</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- IA -->
+      <div class="c-ia">
+        <div class="category-header">
+          <span class="category-dot"></span>
+          <span class="category-label">Inteligência Artificial</span>
+          <span class="category-count">2 artigos</span>
+        </div>
+        <div class="article-list">
+          <a class="article-card" href="articles/IA/llm-101 - o que é uma LLM.html">
+            <div class="title">LLM 101 — O que é uma Large Language Model</div>
+            <div class="desc">Definição de LLMs, onde se encaixam na hierarquia da IA e por que a arquitetura Transformer foi uma virada em relação às RNNs.</div>
+            <div class="meta">
+              <span class="tag">LLM</span>
+              <span class="tag">IA</span>
+              <span class="tag">Transformer</span>
+              <span class="date">06/2026</span>
+            </div>
+          </a>
+          <a class="article-card" href="articles/IA/llm-101 - como sao treinadas.html">
+            <div class="title">LLM 101 — Como as LLMs são treinadas</div>
+            <div class="desc">Pipeline completo de treinamento: coleta de dados, tokenização com BPE, pré-treinamento e fine-tuning com RLHF.</div>
+            <div class="meta">
+              <span class="tag">LLM</span>
+              <span class="tag">Treinamento</span>
+              <span class="tag">RLHF</span>
+              <span class="date">06/2026</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- DESIGN SYSTEM -->
+      <div class="c-ds">
+        <div class="category-header">
+          <span class="category-dot"></span>
+          <span class="category-label">Design System</span>
+          <span class="category-count">em breve</span>
+        </div>
+        <div class="empty-state">Nenhum artigo publicado ainda nesta categoria.</div>
+      </div>
+
     </div>
   </body>
 </html>

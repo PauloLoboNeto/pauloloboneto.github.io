@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SM44B38PW8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SM44B38PW8');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM 101 — Como as LLMs são treinadas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f3;
+      --bg3: #ebebе8;
+      --text: #1a1a18;
+      --text2: #5c5c58;
+      --text3: #8a8a84;
+      --border: rgba(0,0,0,0.1);
+      --border2: rgba(0,0,0,0.22);
+      --info-bg: #e6f1fb;
+      --info-text: #185fa5;
+      --info-border: rgba(24,95,165,0.3);
+      --warn-bg: #faeeda;
+      --warn-text: #854f0b;
+      --warn-border: rgba(186,117,23,0.4);
+      --success-bg: #eaf3de;
+      --success-text: #3b6d11;
+      --success-border: rgba(99,153,34,0.4);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg2: #242422;
+        --bg3: #2e2e2b;
+        --text: #e8e8e2;
+        --text2: #a8a8a0;
+        --text3: #6a6a62;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.22);
+        --info-bg: #042c53;
+        --info-text: #85b7eb;
+        --info-border: rgba(133,183,235,0.3);
+        --warn-bg: #412402;
+        --warn-text: #fac775;
+        --warn-border: rgba(250,199,117,0.35);
+        --success-bg: #173404;
+        --success-text: #97c459;
+        --success-border: rgba(151,196,89,0.35);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    /* ── HEADER ── */
+    .article-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .article-kicker {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--info-text);
+      margin-bottom: 1rem;
+    }
+    .article-title {
+      font-family: 'Lora', serif;
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .article-lede {
+      font-family: 'Lora', serif;
+      font-size: 17px;
+      line-height: 1.85;
+      color: var(--text2);
+      margin-bottom: 1.5rem;
+    }
+    .article-meta {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text3);
+    }
+    .meta-sep { opacity: 0.4; }
+
+    /* ── TYPOGRAPHY ── */
+    .section { margin-bottom: 3.5rem; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+      margin: 1.75rem 0 0.75rem;
+      line-height: 1.4;
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.85;
+      color: var(--text2);
+      margin-bottom: 1rem;
+    }
+    p strong { font-weight: 500; color: var(--text); }
+    p em { font-style: italic; }
+
+    a { color: var(--info-text); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    .code-block {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+      line-height: 1.75;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--text);
+    }
+    .cm { color: var(--text3); font-style: italic; }
+
+    .ref {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      vertical-align: super;
+      background: var(--info-bg);
+      color: var(--info-text);
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 2px;
+      cursor: default;
+      line-height: 1;
+    }
+
+    hr { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
+
+    .callout {
+      border-left: 2px solid var(--info-text);
+      padding: 0.75rem 1rem;
+      margin: 1.25rem 0;
+      background: var(--bg2);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .callout p { font-size: 13.5px; margin: 0; color: var(--text2); }
+
+    .callout-warn {
+      border-left: 2px solid var(--warn-text);
+      background: var(--warn-bg);
+    }
+    .callout-warn p { color: var(--warn-text); }
+
+    /* ── PIPELINE WIDGET ── */
+    .pipeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+    .pipe-step {
+      flex: 1;
+      min-width: 100px;
+      border: 0.5px solid var(--border);
+      background: var(--bg2);
+      padding: 12px 10px;
+      text-align: center;
+      position: relative;
+    }
+    .pipe-step:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+    .pipe-step:last-child  { border-radius: 0 var(--radius) var(--radius) 0; }
+    .pipe-step + .pipe-step { border-left: none; }
+    .pipe-step::after {
+      content: '→';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--text3);
+      z-index: 1;
+    }
+    .pipe-step:last-child::after { display: none; }
+    .pipe-num {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--info-text);
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .pipe-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* ── REFS SECTION ── */
+    .refs-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .refs-list li {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text2);
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    .refs-list li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 0;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--info-text);
+      background: var(--info-bg);
+      border-radius: 3px;
+      padding: 1px 4px;
+      top: 3px;
+    }
+    .refs-list a { color: var(--info-text); }
+
+    @media (max-width: 600px) {
+      .page { padding: 2rem 1rem 4rem; }
+      .pipeline { flex-direction: column; }
+      .pipe-step { border-radius: 0 !important; border-left: 0.5px solid var(--border) !important; }
+      .pipe-step:first-child { border-radius: var(--radius) var(--radius) 0 0 !important; }
+      .pipe-step:last-child  { border-radius: 0 0 var(--radius) var(--radius) !important; }
+      .pipe-step::after { content: '↓'; right: auto; left: 50%; top: auto; bottom: -10px; transform: translateX(-50%); }
+      .code-block { font-size: 11px; padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <a href="../../index.html" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);text-decoration:none;margin-bottom:2rem;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text3)'">← home</a>
+
+  <header class="article-header">
+    <p class="article-kicker">LLM 101 · Parte 2</p>
+    <h1 class="article-title">Como as LLMs são treinadas</h1>
+    <p class="article-lede">Da coleta de dados brutos à geração de texto — as etapas que transformam terabytes de texto em um modelo capaz de conversar, traduzir e raciocinar.</p>
+    <div class="article-meta">
+      <span>Paulo Lobo Neto</span>
+      <span class="meta-sep">·</span>
+      <span>Baseado em <em>Build a Large Language Model (From Scratch)</em> — Raschka, 2024</span>
+    </div>
+  </header>
+
+  <!-- VISÃO GERAL -->
+  <section class="section">
+    <p class="section-label">Visão geral</p>
+
+    <p>No <a href="llm-101 - o que é uma LLM.html">artigo anterior</a> vimos o que são LLMs e onde se encaixam no campo da inteligência artificial. Agora vamos detalhar o processo de treinamento — que não é uma única etapa, mas um <strong>pipeline de quatro fases</strong> encadeadas:</p>
+
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-num">01</div>
+        <div class="pipe-label">Coleta e preparação de dados</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">02</div>
+        <div class="pipe-label">Tokenização</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">03</div>
+        <div class="pipe-label">Pré-treinamento</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">04</div>
+        <div class="pipe-label">Fine-tuning e alinhamento</div>
+      </div>
+    </div>
+
+    <p>Cada fase tem objetivos, técnicas e custos distintos. As fases 1–3 são responsáveis pela maior parte do custo computacional; a fase 4 é onde o modelo aprende a ser útil e seguro para o usuário final.</p>
+  </section>
+
+  <!-- COLETA -->
+  <section class="section">
+    <p class="section-label">Fase 01</p>
+
+    <h3>Coleta e preparação de dados</h3>
+    <p>LLMs são treinadas em volumes massivos de texto — na ordem de centenas de bilhões a trilhões de tokens. As fontes incluem páginas web (Common Crawl), livros digitalizados (Books3, Project Gutenberg), repositórios de código (GitHub), artigos científicos (ArXiv) e enciclopédias (Wikipedia).</p>
+
+    <p>Coletar é apenas o começo. Antes de qualquer treinamento, os dados passam por um processo de <strong>pré-processamento</strong> que inclui:</p>
+
+    <ul style="margin: 0.75rem 0 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+      <li style="font-size:15px; line-height:1.75; color:var(--text2);"><strong>Deduplicação</strong> — remoção de textos duplicados ou quase-duplicados, que distorceriam o aprendizado ao super-representar certos padrões.</li>
+      <li style="font-size:15px; line-height:1.75; color:var(--text2);"><strong>Filtragem de qualidade</strong> — descarte de conteúdo de baixa qualidade, spam ou conteúdo nocivo.</li>
+      <li style="font-size:15px; line-height:1.75; color:var(--text2);"><strong>Normalização</strong> — padronização de encoding, remoção de caracteres de controle e limpeza de HTML residual.</li>
+    </ul>
+
+    <div class="callout">
+      <p>Modelos treinados com dados especializados tendem a ter desempenho superior em tarefas do domínio específico em comparação com modelos de propósito geral — um padrão que impulsiona o crescimento de LLMs verticais para medicina, direito e finanças. <span class="ref">1</span></p>
+    </div>
+  </section>
+
+  <!-- TOKENIZAÇÃO -->
+  <section class="section">
+    <p class="section-label">Fase 02</p>
+
+    <h3>Tokenização</h3>
+    <p>Redes neurais não processam texto diretamente — processam números. A tokenização é a etapa que converte texto em sequências de inteiros, cada um representando uma unidade chamada <strong>token</strong>. Um token pode ser uma palavra inteira, uma subpalavra ou até um caractere, dependendo do algoritmo usado.</p>
+
+    <p>O processo envolve duas sub-etapas:</p>
+
+    <h3>Segmentação do texto</h3>
+    <p>O texto é dividido em tokens usando algoritmos como <strong>Byte Pair Encoding (BPE)</strong> <span class="ref">2</span> ou <strong>WordPiece</strong> <span class="ref">3</span>. Ambos partem de caracteres individuais e mesclam iterativamente os pares mais frequentes, formando subpalavras comuns. Isso resolve um problema central: lidar com palavras raras ou inexistentes no vocabulário de treinamento.</p>
+
+    <p>Exemplo de tokenização com BPE para a frase <em>"Os modelos aprendem representações"</em>:</p>
+
+    <div class="code-block"><span class="cm">-- texto original --</span>
+"Os modelos aprendem representações"
+
+<span class="cm">-- BPE divide em subpalavras conhecidas --</span>
+["Os", " modelos", " aprend", "em", " represent", "ações"]
+
+<span class="cm">-- cada token recebe um ID inteiro --</span>
+[284, 1731, 893, 368, 2047, 714]</div>
+
+    <p>Palavras comuns como "Os" e "modelos" viram tokens únicos. Já "aprendem" e "representações" — menos frequentes como forma exata — são divididas em partes que o modelo já conhece de outros contextos. Isso elimina o problema de palavras fora do vocabulário sem precisar de um dicionário infinito.</p>
+
+    <h3>Construção do vocabulário</h3>
+    <p>Cada token recebe um <strong>ID inteiro único</strong>, formando o vocabulário do modelo. O GPT-2 usa um vocabulário de 50.257 tokens; o GPT-4 usa aproximadamente 100.000. Durante o treinamento, cada ID é mapeado para um <strong>vetor numérico de alta dimensão</strong> (embedding), que o modelo aprende a ajustar para capturar o significado semântico de cada token.</p>
+  </section>
+
+  <!-- PRÉ-TREINAMENTO -->
+  <section class="section">
+    <p class="section-label">Fase 03</p>
+
+    <h3>Pré-treinamento</h3>
+    <p>Esta é a fase mais custosa computacionalmente — e a que confere ao modelo seu conhecimento de linguagem. O objetivo é: dado um trecho de texto, <strong>prever o próximo token</strong>. 
+
+    <div class="code-block"><span class="cm">-- exemplo de predição sequencial --</span>
+Entrada:  "O gato subiu no"
+Alvo:     "telhado"
+
+Entrada:  "O gato subiu no telhado"
+Alvo:     "e"
+
+Entrada:  "O gato subiu no telhado e"
+Alvo:     "ficou"</div>
+
+    <p>O modelo é exposto a bilhões desses exemplos e ajusta seus parâmetros para minimizar o erro de predição. Após bilhões de iterações sobre terabytes de texto, o modelo internaliza gramática, fatos, raciocínio e estruturas narrativas — sem nenhuma supervisão humana explícita. <span class="ref">1</span></p>
+
+    <div class="callout">
+      <p>O pré-treinamento do GPT-3 custou estimados US$ 4–12 milhões em computação e consumiu meses em clusters de milhares de GPUs. É por isso que a maioria das aplicações parte de modelos pré-treinados, sem repetir essa etapa.</p>
+    </div>
+  </section>
+
+  <!-- FINE-TUNING -->
+  <section class="section">
+    <p class="section-label">Fase 04</p>
+
+    <h3>Fine-tuning e alinhamento</h3>
+    <p>Um modelo apenas pré-treinado sabe completar texto, mas não necessariamente seguir instruções, responder perguntas de forma útil ou evitar respostas nocivas. A fase de fine-tuning resolve isso — e se divide em duas abordagens principais:</p>
+
+    <h3>Supervised Fine-Tuning (SFT)</h3>
+    <p>O modelo é treinado em um conjunto menor de exemplos com pares <em>instrução → resposta</em> criados ou curados por humanos. Isso ensina o modelo a seguir o formato de conversação e a responder de forma direta e útil.</p>
+
+    <div class="code-block"><span class="cm">-- exemplo de par instrução/resposta para SFT --</span>
+Instrução: "Resuma o seguinte parágrafo em uma frase."
+Resposta:  "O texto descreve o processo de fotossíntese ..."</div>
+
+    <h3>RLHF — Reinforcement Learning from Human Feedback</h3>
+    <p>Nesta etapa <span class="ref">4</span>, avaliadores humanos classificam diferentes respostas geradas pelo modelo. Essas classificações treinam um <strong>modelo de recompensa</strong> que aprende a prever qual resposta um humano preferiria. O LLM é então ajustado via aprendizado por reforço para maximizar essa recompensa — tornando as respostas mais úteis, precisas e seguras.</p>
+
+    <p>Esta é a etapa responsável pelo comportamento dos assistentes conversacionais como ChatGPT e Claude: o pré-treinamento dá o conhecimento; o RLHF dá o comportamento.</p>
+
+  </section>
+
+  <hr>
+
+  <!-- REFERÊNCIAS -->
+  <section class="section">
+    <p class="section-label">Referências</p>
+    <ul class="refs-list">
+      <li data-n="1">RASCHKA, Sebastian. <em>Build a Large Language Model (From Scratch)</em>. O'Reilly Media, 2024.</li>
+      <li data-n="2">SENNRICH, Rico; HADDOW, Barry; BIRCH, Alexandra. <em>Neural Machine Translation of Rare Words with Subword Units</em>. ACL, 2016. <a href="https://arxiv.org/abs/1508.07909" target="_blank" rel="noopener">arxiv.org/abs/1508.07909</a></li>
+      <li data-n="3">WU, Yonghui et al. <em>Google's Neural Machine Translation System: Bridging the Gap between Human and Machine Translation</em>. 2016. <a href="https://arxiv.org/abs/1609.08144" target="_blank" rel="noopener">arxiv.org/abs/1609.08144</a></li>
+      <li data-n="4">OUYANG, Long et al. <em>Training language models to follow instructions with human feedback</em> (InstructGPT). NeurIPS, 2022. <a href="https://arxiv.org/abs/2203.02155" target="_blank" rel="noopener">arxiv.org/abs/2203.02155</a></li>
+    </ul>
+  </section>
+
+</div>
+<!-- Floating heart button -->
+<style>
+  #heart-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: #1a1a2e;
+    box-shadow: 0 2px 12px rgba(0,0,0,.45);
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .15s ease, box-shadow .15s ease;
+    z-index: 999;
+  }
+  #heart-btn:hover { transform: scale(1.12); box-shadow: 0 4px 18px rgba(0,0,0,.55); }
+  #heart-btn.liked { animation: heartPop .35s ease forwards; }
+  @keyframes heartPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.4); }
+    70%  { transform: scale(.9); }
+    100% { transform: scale(1); }
+  }
+  #heart-toast {
+    position: fixed;
+    bottom: 90px;
+    right: 28px;
+    background: #1a1a2e;
+    color: #e2e8f0;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.4);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity .25s ease, transform .25s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+  }
+  #heart-toast.show { opacity: 1; transform: translateY(0); }
+</style>
+
+<button id="heart-btn" title="Curtiu o artigo?" aria-label="Curtir artigo">🤍</button>
+<div id="heart-toast">Obrigado pelo feedback! ❤️</div>
+
+<script>
+  (function () {
+    const btn = document.getElementById('heart-btn');
+    const toast = document.getElementById('heart-toast');
+    let toastTimer;
+
+    btn.addEventListener('click', function () {
+      btn.textContent = '❤️';
+      btn.classList.remove('liked');
+      void btn.offsetWidth;
+      btn.classList.add('liked');
+
+      gtag('event', 'article_like', { article: 'llm-101-como-treinadas', action: 'like' });
+
+      toast.classList.add('show');
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+        btn.style.transition = 'opacity .4s ease, transform .4s ease';
+        btn.style.opacity = '0';
+        btn.style.transform = 'scale(.6)';
+        setTimeout(() => btn.style.display = 'none', 400);
+      }, 2500);
+    });
+  })();
+</script>
+</body>
+</html>
