@@ -14,8 +14,8 @@
   <title>Virtual DOM e React — Por dentro do algoritmo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/base.css">
-  <link rel="stylesheet" href="../assets/css/heart.css">
+  <link rel="stylesheet" href="../../../assets/css/base.css">
+  <link rel="stylesheet" href="../../../assets/css/heart.css">
   <style>
     /* ── SYNTAX HIGHLIGHT ── */
     .kw  { color: #7c6af7; }
@@ -304,12 +304,12 @@
   </div>
 
   <p style="text-align: justify;">
-    No react, quando o estado de um componente muda, uma nova árvore virtual é gerada. É feito um processo de <strong>reconciliação</strong> - vamos falar dele logo adiante - comparando essa nova árvore com a anterior, calculando o conjunto mínimo de operações necessárias para sincronizar o DOM real. <span class="ref">1</span>
+    No react, quando o estado de um componente muda, uma nova árvore virtual é gerada. É feito um processo chamado <strong>reconciliação</strong> - vamos falar dele logo adiante - comparando essa nova árvore com a anterior, calculando o conjunto mínimo de operações necessárias para sincronizar o DOM real. <span class="ref">1</span>
   </p>
   <p>
     O ponto importante aqui é que o browser não é chamado até que o diff esteja calculado.
     Todas as alterações são calculadas primeiro no Virtual DOM.
-    O react agrupa um conjunto de atualizações, aplica no VDOM e depois modifica no DOM real somente aquilo que foi alterado, minimizando <em>reflows</em> e <em>repaints</em>.
+    O react agrupa um conjunto de atualizações, aplica no VDOM e depois modifica no DOM real somente aquilo que foi alterado, minimizando <a href="https://developer.mozilla.org/pt-BR/docs/Glossary/Reflow">reflows</a> e <a href="https://developer.mozilla.org/en-US/docs/Glossary/Repaint">repaints</a>.
     Porque isso? porque alterações no DOM real são custosas — cada mudança pode disparar um reflow, onde o browser precisa recalcular o layout de toda a página.
     O Virtual DOM é uma camada de otimização que permite ao React atualizar a interface de forma eficiente, exigindo o mínimo possível do browser - e obviamente do dispositivo, principalmente se for um device móvel.
   </p>
@@ -683,7 +683,7 @@ const steps = [
   },
   {
     title: 'Batching — aplicação em lote',
-    body: `<p style="font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:1rem">O React agrupa múltiplas atualizações de estado em um único ciclo de reconciliação. No React 18, o <strong>automatic batching</strong> estende isso para promises, timeouts e eventos nativos.</p>
+    body: `<p style="font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:1rem">O React agrupa múltiplas atualizações de estado em um único ciclo de reconciliação. No React 18, o <a href="https://www.geeksforgeeks.org/reactjs/what-is-automatic-batching-in-react-18/">automatic batching</a> estende isso para promises, timeouts e eventos nativos.</p>
     <div class="code-block" style="font-size:11.5px;margin:0"><span class="cm">// React 18 — 1 re-render, não 2</span>
 <span class="fn">setTimeout</span>(() => {
   <span class="fn">setCount</span>(c => c + <span class="nb">1</span>);
@@ -779,6 +779,6 @@ function animateFiber() {
 
 <button id="heart-btn" data-article="virtual-dom-react" title="Curtiu o artigo?" aria-label="Curtir artigo">🤍</button>
 <div id="heart-toast">Obrigado pelo feedback! ❤️</div>
-<script src="../assets/js/heart.js"></script>
+<script src="../../../assets/js/heart.js"></script>
 </body>
 </html>
