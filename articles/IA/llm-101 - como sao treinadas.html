@@ -69,6 +69,106 @@
       .pipe-step:last-child  { border-radius: 0 0 var(--radius) var(--radius) !important; }
       .pipe-step::after { content: '↓'; right: auto; left: 50%; top: auto; bottom: -10px; transform: translateX(-50%); }
     }
+
+    /* ── DATA PREP WIDGET ── */
+    .dpw { margin: 1.5rem 0; }
+    .dpw-tabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+    .dpw-tab {
+      padding: 5px 13px;
+      border: 0.5px solid var(--border);
+      background: transparent;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: var(--font-mono, monospace);
+      color: var(--text3);
+      cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .dpw-tab:hover { color: var(--text2); }
+    .dpw-tab.active { background: var(--info-bg); color: var(--info-text); border-color: var(--info-text); }
+    .dpw-desc { font-size: 13px; color: var(--text3); margin-bottom: 10px; font-style: italic; min-height: 1.4em; }
+    .dpw-cards { display: flex; flex-direction: column; gap: 6px; }
+    .dpw-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg2);
+      font-size: 12.5px;
+      font-family: var(--font-mono, monospace);
+      color: var(--text2);
+      transition: opacity .3s, background .3s, border-color .3s, color .3s;
+    }
+    .dpw-card-text { flex: 1; line-height: 1.5; }
+    .dpw-card.removed { opacity: .35; }
+    .dpw-card.removed .dpw-card-text { text-decoration: line-through; }
+    .dpw-card.transformed { background: var(--info-bg); border-color: var(--info-text); color: var(--info-text); }
+    .dpw-badge {
+      font-size: 10px; padding: 2px 8px; border-radius: 99px;
+      font-weight: 600; white-space: nowrap; letter-spacing: .04em; flex-shrink: 0;
+    }
+    .dpw-badge-spam  { background: rgba(239,68,68,.15);  color: #f87171; }
+    .dpw-badge-short { background: rgba(251,191,36,.15); color: #fbbf24; }
+    .dpw-badge-dup   { background: rgba(165,180,252,.15); color: #a5b4fc; }
+    .dpw-badge-html  { background: var(--info-bg); color: var(--info-text); border: 0.5px solid var(--info-text); }
+    .dpw-badge-clean { background: rgba(52,211,153,.15); color: #6ee7b7; }
+    .dpw-count { margin-top: 10px; font-size: 12px; color: var(--text3); text-align: right; font-family: var(--font-mono, monospace); }
+    .dpw-count strong { color: var(--text); }
+    .code-details { margin: 1rem 0; }
+    .code-details summary {
+      font-size: 12px; font-family: var(--font-mono, monospace);
+      color: var(--text3); cursor: pointer; padding: 6px 0;
+      list-style: none; display: flex; align-items: center; gap: 6px;
+    }
+    .code-details summary::-webkit-details-marker { display: none; }
+    .code-details summary::before { content: '▶'; font-size: 9px; transition: transform .2s; }
+    .code-details[open] summary::before { transform: rotate(90deg); }
+    .code-details summary:hover { color: var(--text2); }
+    .code-details .code-block { margin-top: 0; border-radius: 0 var(--radius) var(--radius) var(--radius); }
+
+    /* ── TOKENIZATION WIDGET ── */
+    .tok-widget { margin: 1.5rem 0; }
+    .tok-selector { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .tok-selector-label { font-size: 12px; color: var(--text3); font-family: var(--font-mono, monospace); flex-shrink: 0; }
+    .tok-word-btn {
+      padding: 4px 12px;
+      border: 0.5px solid var(--border);
+      background: transparent;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: var(--font-mono, monospace);
+      color: var(--text3);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .tok-word-btn:hover { color: var(--text2); }
+    .tok-word-btn.active { background: var(--info-bg); color: var(--info-text); border-color: var(--info-text); }
+    .tok-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (max-width: 560px) { .tok-panels { grid-template-columns: 1fr; } }
+    .tok-panel { border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .tok-panel-head { background: var(--bg2); padding: 10px 14px; border-bottom: 0.5px solid var(--border); }
+    .tok-algo-name { font-size: 13px; font-weight: 600; color: var(--text); font-family: var(--font-mono, monospace); margin-bottom: 2px; }
+    .tok-algo-used { font-size: 11px; color: var(--info-text); font-family: var(--font-mono, monospace); margin-bottom: 4px; }
+    .tok-algo-rule { font-size: 11px; color: var(--text3); font-style: italic; }
+    .tok-panel-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .tok-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; }
+    .tok-chip { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .tok-chip-text {
+      padding: 5px 9px;
+      border: 0.5px solid var(--border);
+      border-radius: calc(var(--radius) * 0.6);
+      font-size: 12px;
+      font-family: var(--font-mono, monospace);
+      color: var(--text);
+      background: var(--bg2);
+      white-space: nowrap;
+    }
+    .tok-chip.cont .tok-chip-text { background: var(--info-bg); color: var(--info-text); border-color: var(--info-text); }
+    .tok-chip-id { font-size: 10px; color: var(--text3); font-family: var(--font-mono, monospace); }
+    .tok-prefix { opacity: 0.55; }
+    .tok-panel-count { font-size: 11px; color: var(--text3); font-family: var(--font-mono, monospace); text-align: right; }
+    .tok-panel-count strong { color: var(--text2); }
+    .tok-note { font-size: 13px; color: var(--text3); font-style: italic; margin-top: 10px; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -130,6 +230,106 @@
       <li style="font-size:15px; line-height:1.75; color:var(--text2);"><strong>Normalização</strong> — padronização de encoding, remoção de caracteres de controle e limpeza de HTML residual.</li>
     </ul>
 
+    <p>Cada etapa transforma o corpus — clique nos passos para ver o efeito sobre cada documento:</p>
+
+    <div class="dpw" id="dpw">
+      <div class="dpw-tabs">
+        <button class="dpw-tab active" onclick="dpwGo(0)">Brutos</button>
+        <button class="dpw-tab" onclick="dpwGo(1)">1. Normalização</button>
+        <button class="dpw-tab" onclick="dpwGo(2)">2. Filtragem</button>
+        <button class="dpw-tab" onclick="dpwGo(3)">3. Deduplicação</button>
+      </div>
+      <p class="dpw-desc" id="dpwDesc"></p>
+      <div class="dpw-cards" id="dpwCards"></div>
+      <p class="dpw-count" id="dpwCount"></p>
+    </div>
+    <script>
+    (function () {
+      var docs = [
+        { text: '"A fotossíntese é o processo pelo qual plantas produzem energia."',
+          clean: '"A fotossíntese é o processo pelo qual plantas produzem energia."' },
+        { text: '"COMPRE AGORA!!! Oferta imperdível — clique aqui!!!"',
+          clean: '"COMPRE AGORA!!! Oferta imperdível — clique aqui!!!"', spam: true },
+        { text: '"A fotossíntese é o processo pelo qual plantas produzem energia."',
+          clean: '"A fotossíntese é o processo pelo qual plantas produzem energia."', dup: true },
+        { text: '&lt;div&gt;Redes neurais aprendem padrões com exemplos.&lt;/div&gt;',
+          clean: '"Redes neurais aprendem padrões com exemplos."', html: true },
+        { text: '"ok."', clean: '"ok."', short: true },
+      ];
+      var steps = [
+        '5 documentos coletados — texto bruto, sem nenhum tratamento.',
+        'Tags HTML removidas do documento 4; conteúdo extraído e normalizado.',
+        'Spam (doc 2) e texto muito curto (doc 5) descartados pela filtragem de qualidade.',
+        'Duplicata (doc 3) removida. Corpus final: 2 documentos limpos e únicos.',
+      ];
+      function render(step) {
+        document.getElementById('dpwDesc').textContent = steps[step];
+        document.querySelectorAll('.dpw-tab').forEach(function (t, i) {
+          t.classList.toggle('active', i === step);
+        });
+        var cards = document.getElementById('dpwCards');
+        cards.innerHTML = '';
+        var kept = 0;
+        docs.forEach(function (doc) {
+          var removedQ = step >= 2 && (doc.spam || doc.short);
+          var removedD = step >= 3 && doc.dup;
+          var removed  = removedQ || removedD;
+          var xformed  = step >= 1 && doc.html && !removed;
+          var card = document.createElement('div');
+          card.className = 'dpw-card' + (removed ? ' removed' : '') + (xformed ? ' transformed' : '');
+          var span = document.createElement('span');
+          span.className = 'dpw-card-text';
+          if (step >= 1 && doc.html) { span.textContent = doc.clean; }
+          else { span.innerHTML = doc.text; }
+          card.appendChild(span);
+          var badges = [];
+          if (step === 0 && doc.html)  badges.push(['HTML', 'html']);
+          if (xformed)                 badges.push(['normalizado', 'clean']);
+          if (step >= 2 && doc.spam)   badges.push(['spam', 'spam']);
+          if (step >= 2 && doc.short)  badges.push(['curto demais', 'short']);
+          if (step >= 3 && doc.dup)    badges.push(['duplicata', 'dup']);
+          badges.forEach(function (b) {
+            var el = document.createElement('span');
+            el.className = 'dpw-badge dpw-badge-' + b[1];
+            el.textContent = b[0];
+            card.appendChild(el);
+          });
+          if (!removed) kept++;
+          cards.appendChild(card);
+        });
+        document.getElementById('dpwCount').innerHTML =
+          '<strong>' + kept + '</strong> de 5 documentos restantes';
+      }
+      window.dpwGo = render;
+      render(0);
+    })();
+    </script>
+
+    <details class="code-details">
+      <summary>ver implementação em Python</summary>
+      <div class="code-block"><span class="kw">import</span> re
+
+<span class="cm"># textos brutos coletados (ex: parágrafos de páginas web)</span>
+raw_texts = [
+    <span class="str">"A fotossíntese é o processo pelo qual plantas produzem energia."</span>,
+    <span class="str">"COMPRE AGORA!!! Oferta imperdível — clique aqui!!!"</span>,   <span class="cm"># spam</span>
+    <span class="str">"A fotossíntese é o processo pelo qual plantas produzem energia."</span>,  <span class="cm"># duplicata</span>
+    <span class="str">"&lt;div&gt;Redes neurais aprendem padrões com exemplos.&lt;/div&gt;"</span>,
+    <span class="str">"ok."</span>,                                                    <span class="cm"># muito curto</span>
+]
+
+<span class="kw">def</span> <span class="fn">limpar_html</span>(texto):
+    <span class="kw">return</span> re.sub(<span class="str">r"&lt;[^&gt;]+&gt;"</span>, <span class="str">""</span>, texto).strip()
+
+<span class="kw">def</span> <span class="fn">é_qualidade</span>(texto, min_tokens=<span class="num">8</span>, max_exclamacoes=<span class="num">2</span>):
+    tokens = texto.split()
+    <span class="kw">return</span> len(tokens) >= min_tokens <span class="kw">and</span> texto.count(<span class="str">"!"</span>) <= max_exclamacoes
+
+normalizados = [limpar_html(t) <span class="kw">for</span> t <span class="kw">in</span> raw_texts]
+filtrados    = [t <span class="kw">for</span> t <span class="kw">in</span> normalizados <span class="kw">if</span> é_qualidade(t)]
+deduplicados = list(dict.fromkeys(filtrados))</div>
+    </details>
+
     <div class="callout">
       <p>Modelos treinados com dados especializados tendem a ter desempenho superior em tarefas do domínio específico em comparação com modelos de propósito geral — um padrão que impulsiona o crescimento de LLMs verticais para medicina, direito e finanças. <span class="ref">1</span></p>
     </div>
@@ -147,18 +347,122 @@
     <h3>Segmentação do texto</h3>
     <p>O texto é dividido em tokens usando algoritmos como <strong>Byte Pair Encoding (BPE)</strong> <span class="ref">2</span> ou <strong>WordPiece</strong> <span class="ref">3</span>. Ambos partem de caracteres individuais e mesclam iterativamente os pares mais frequentes, formando subpalavras comuns. Isso resolve um problema central: lidar com palavras raras ou inexistentes no vocabulário de treinamento.</p>
 
-    <p>Exemplo de tokenização com BPE para a frase <em>"Os modelos aprendem representações"</em>:</p>
+    <p>Clique em uma palavra para comparar como cada algoritmo a divide em tokens:</p>
 
-    <div class="code-block"><span class="cm">-- texto original --</span>
-"Os modelos aprendem representações"
+    <div class="tok-widget" id="tokWidget">
+      <div class="tok-selector">
+        <span class="tok-selector-label">palavra:</span>
+        <button class="tok-word-btn active" onclick="tokGo(0)">redes</button>
+        <button class="tok-word-btn" onclick="tokGo(1)">aprendem</button>
+        <button class="tok-word-btn" onclick="tokGo(2)">tokenização</button>
+        <button class="tok-word-btn" onclick="tokGo(3)">GPT-4</button>
+      </div>
+      <div class="tok-panels">
+        <div class="tok-panel">
+          <div class="tok-panel-head">
+            <div class="tok-algo-name">BPE</div>
+            <div class="tok-algo-used">GPT-2 · GPT-4</div>
+            <div class="tok-algo-rule">· indica início de nova palavra</div>
+          </div>
+          <div class="tok-panel-body">
+            <div class="tok-chips" id="tokBpeChips"></div>
+            <div class="tok-panel-count" id="tokBpeCount"></div>
+          </div>
+        </div>
+        <div class="tok-panel">
+          <div class="tok-panel-head">
+            <div class="tok-algo-name">WordPiece</div>
+            <div class="tok-algo-used">BERT · DistilBERT</div>
+            <div class="tok-algo-rule">## indica continuação de subpalavra</div>
+          </div>
+          <div class="tok-panel-body">
+            <div class="tok-chips" id="tokWpChips"></div>
+            <div class="tok-panel-count" id="tokWpCount"></div>
+          </div>
+        </div>
+      </div>
+      <p class="tok-note" id="tokNote"></p>
+    </div>
+    <script>
+    (function () {
+      var data = [
+        {
+          word: 'redes',
+          bpe: [{ text: 'redes', id: 12493, space: true }],
+          wp:  [{ text: 'rede', id: 7839 }, { text: '##s', id: 1116, cont: true }]
+        },
+        {
+          word: 'aprendem',
+          bpe: [{ text: 'aprend', id: 893, space: true }, { text: 'em', id: 368, cont: true }],
+          wp:  [{ text: 'aprend', id: 1200 }, { text: '##em', id: 830, cont: true }],
+          note: 'Mesma divisão lógica nos dois algoritmos. A diferença é só notacional: BPE usa · (espaço) no primeiro token; WordPiece usa ## nos tokens seguintes.'
+        },
+        {
+          word: 'tokenização',
+          bpe: [{ text: 'token', id: 3399, space: true }, { text: 'ização', id: 29767, cont: true }],
+          wp:  [{ text: 'token', id: 19204 }, { text: '##iza', id: 11472, cont: true }, { text: '##ção', id: 3303, cont: true }],
+          note: 'Termo técnico raro: WordPiece divide em 3 partes para maximizar probabilidade da sequência; BPE já tinha visto "ização" como par frequente e o mantém junto.'
+        },
+        {
+          word: 'GPT-4',
+          bpe: [{ text: 'GPT', id: 38, space: true }, { text: '-4', id: 21, cont: true }],
+          wp:  [{ text: 'G', id: 144 }, { text: '##PT', id: 7982, cont: true }, { text: '-', id: 118 }, { text: '##4', id: 1018, cont: true }],
+          note: 'Sigla com número: BPE aprendeu "GPT" como token único por frequência no corpus de código e web. WordPiece fragmenta mais, gerando 4 tokens vs 2.'
+        }
+      ];
 
-<span class="cm">-- BPE divide em subpalavras conhecidas --</span>
-["Os", " modelos", " aprend", "em", " represent", "ações"]
+      function makeChips(tokens, algo) {
+        return tokens.map(function (t) {
+          var chip = document.createElement('div');
+          chip.className = 'tok-chip' + (t.cont ? ' cont' : '');
+          var textEl = document.createElement('span');
+          textEl.className = 'tok-chip-text';
+          if (algo === 'bpe' && t.space) {
+            var pfxA = document.createElement('span');
+            pfxA.className = 'tok-prefix';
+            pfxA.textContent = '·';
+            textEl.appendChild(pfxA);
+            textEl.appendChild(document.createTextNode(t.text));
+          } else if (algo === 'wp' && t.cont) {
+            var pfxB = document.createElement('span');
+            pfxB.className = 'tok-prefix';
+            pfxB.textContent = '##';
+            textEl.appendChild(pfxB);
+            textEl.appendChild(document.createTextNode(t.text.slice(2)));
+          } else {
+            textEl.textContent = t.text;
+          }
+          var idEl = document.createElement('span');
+          idEl.className = 'tok-chip-id';
+          idEl.textContent = t.id;
+          chip.appendChild(textEl);
+          chip.appendChild(idEl);
+          return chip;
+        });
+      }
 
-<span class="cm">-- cada token recebe um ID inteiro --</span>
-[284, 1731, 893, 368, 2047, 714]</div>
+      function render(idx) {
+        var d = data[idx];
+        document.querySelectorAll('.tok-word-btn').forEach(function (b, i) {
+          b.classList.toggle('active', i === idx);
+        });
+        var bpeEl = document.getElementById('tokBpeChips');
+        var wpEl  = document.getElementById('tokWpChips');
+        bpeEl.innerHTML = '';
+        wpEl.innerHTML  = '';
+        makeChips(d.bpe, 'bpe').forEach(function (c) { bpeEl.appendChild(c); });
+        makeChips(d.wp,  'wp' ).forEach(function (c) { wpEl.appendChild(c);  });
+        document.getElementById('tokBpeCount').innerHTML =
+          '<strong>' + d.bpe.length + '</strong> token' + (d.bpe.length !== 1 ? 's' : '');
+        document.getElementById('tokWpCount').innerHTML =
+          '<strong>' + d.wp.length + '</strong> token' + (d.wp.length !== 1 ? 's' : '');
+        document.getElementById('tokNote').textContent = d.note;
+      }
 
-    <p>Palavras comuns como "Os" e "modelos" viram tokens únicos. Já "aprendem" e "representações" — menos frequentes como forma exata — são divididas em partes que o modelo já conhece de outros contextos. Isso elimina o problema de palavras fora do vocabulário sem precisar de um dicionário infinito.</p>
+      window.tokGo = render;
+      render(0);
+    })();
+    </script>
 
     <h3>Construção do vocabulário</h3>
     <p>Cada token recebe um <strong>ID inteiro único</strong>, formando o vocabulário do modelo. O GPT-2 usa um vocabulário de 50.257 tokens; o GPT-4 usa aproximadamente 100.000. Durante o treinamento, cada ID é mapeado para um <strong>vetor numérico de alta dimensão</strong> (embedding), que o modelo aprende a ajustar para capturar o significado semântico de cada token.</p>
@@ -198,7 +502,7 @@ Alvo:     "ficou"</div>
     <h3>Supervised Fine-Tuning (SFT)</h3>
     <p>O modelo é treinado em um conjunto menor de exemplos com pares <em>instrução → resposta</em> criados ou curados por humanos. Isso ensina o modelo a seguir o formato de conversação e a responder de forma direta e útil.</p>
 
-    <div class="code-block"><span class="cm">-- exemplo de par instrução/resposta para SFT --</span>
+    <div class="code-block">
 Instrução: "Resuma o seguinte parágrafo em uma frase."
 Resposta:  "O texto descreve o processo de fotossíntese ..."</div>
 
