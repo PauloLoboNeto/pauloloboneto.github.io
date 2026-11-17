@@ -417,12 +417,13 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   "use strict";
 
   /* ---------- Dados do plano ---------- */
-  var META = { kcal: 2996, p: 192 };
+  var META = { kcal: 2979, p: 194 };
   var MEALS = [
-    { id: "cafe", hora: "8h45", nome: "Café da manhã", itens: "4 fatias de pão de forma (100 g) · 3 ovos mexidos · 1 fatia de queijo minas (30 g) · 1 banana · café sem açúcar", kcal: 649, p: 36 },
-    { id: "almoco", hora: "12h45", nome: "Almoço", itens: "250 g de arroz · 140 g de feijão · 100 g de frango grelhado · 150 g de legumes · folhas à vontade · 1 col. de sopa de azeite · 1 laranja", kcal: 793, p: 49 },
+    { id: "cafe", hora: "8h45", nome: "Café da manhã", itens: "2 fatias de pão de forma (50 g) · 2 ovos mexidos · 1 fatia de queijo minas (30 g) · 1 banana · café sem açúcar", kcal: 450, p: 25 },
+    { id: "shake", hora: "10h30", nome: "Shake da manhã", itens: "Batido: 300 ml de leite integral · 5 col. de sopa de aveia (50 g) · 1 banana · 1 col. de sopa de pasta de amendoim (15 g). Se acordar tarde, beba junto do café.", kcal: 566, p: 21 },
+    { id: "almoco", hora: "12h45", nome: "Almoço", itens: "100 g de arroz · 140 g de feijão · 100 g de frango grelhado · 150 g de legumes · folhas à vontade (por último) · 1 col. de sopa de azeite · 1 laranja", kcal: 601, p: 45 },
     { id: "pre", hora: "16h30", nome: "Pré-treino", nomeFolga: "Lanche da tarde", itens: "1 bebida proteica de 15 g (YoPRO ou Power Whey, 250 ml) · 4 col. de sopa de aveia (40 g) · 1 banana", kcal: 421, p: 22 },
-    { id: "jantar", hora: "20h30", nome: "Jantar pós-treino", nomeFolga: "Jantar", itens: "250 g de arroz · 100 g de feijão · 100 g de patinho · 150 g de legumes · 1 col. de chá de azeite", kcal: 712, p: 49 },
+    { id: "jantar", hora: "20h30", nome: "Jantar pós-treino", nomeFolga: "Jantar", itens: "100 g de arroz · 100 g de feijão · 100 g de patinho · 150 g de legumes · 1 col. de chá de azeite", kcal: 520, p: 45 },
     { id: "ceia", hora: "23h", nome: "Ceia", itens: "Vitamina: 250 ml de leite integral · 30 g de whey · 1 fatia de mamão (150 g) · 15 g de pasta de amendoim", kcal: 421, p: 36 }
   ];
 
@@ -469,7 +470,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   // Lista de compras: quantidades para 1 semana (7 dias do cardápio). nota pode depender do nº de semanas.
   var SHOP = [
     { sec: "Hortifruti", items: [
-      { id: "banana", nome: "Banana", q: 14, u: "un", nota: "2 por dia (café e pré-treino). Leve algumas mais verdes para o fim da semana." },
+      { id: "banana", nome: "Banana", q: 21, u: "un", nota: "3 por dia (café, shake e pré-treino). Leve algumas mais verdes para o fim da semana." },
       { id: "laranja", nome: "Laranja", q: 7, u: "un", nota: "Sobremesa do almoço." },
       { id: "mamao", nome: "Mamão formosa médio", q: 1, u: "un", nota: "Ou 3 papaias por semana. São 150 g por dia na vitamina." },
       { id: "legumes", nome: "Legumes variados", q: 2.2, u: "kg", nota: "300 g por dia: brócolis, cenoura, abobrinha, chuchu, vagem." },
@@ -481,19 +482,19 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       { id: "patinho", nome: "Patinho (bife ou moído)", q: 1.1, u: "kg", nota: "Peso cru. Rende ~700 g pronto (100 g por dia no jantar)." }
     ]},
     { sec: "Padaria", items: [
-      { id: "pao", nome: "Pão de forma", q: 28, u: "fatias", nota: function (w) { return "4 fatias por dia no café: " + Math.ceil(28 * w / 20) + " pacotes de 500 g (~20 fatias cada)."; } }
+      { id: "pao", nome: "Pão de forma", q: 14, u: "fatias", nota: function (w) { return "2 fatias por dia no café: " + Math.ceil(14 * w / 20) + (Math.ceil(14 * w / 20) > 1 ? " pacotes" : " pacote") + " de 500 g (~20 fatias cada)."; } }
     ]},
     { sec: "Ovos e laticínios", items: [
-      { id: "ovos", nome: "Ovos", q: 21, u: "un", nota: function (w) { return "3 por dia. Equivale a " + Math.ceil(21 * w / 12) + " dúzias."; } },
+      { id: "ovos", nome: "Ovos", q: 14, u: "un", nota: function (w) { return "2 por dia. Equivale a " + Math.ceil(14 * w / 12) + " dúzias."; } },
       { id: "bebida", nome: "Bebida proteica 15 g (YoPRO ou Power Whey)", q: 7, u: "un", nota: "1 por dia no pré-treino (250 ml, 15 g de proteína)." },
-      { id: "leite", nome: "Leite integral", q: 1.75, u: "L", nota: function (w) { return "250 ml por dia na vitamina: " + Math.ceil(1.75 * w) + " caixas de 1 L."; } },
+      { id: "leite", nome: "Leite integral", q: 3.85, u: "L", nota: function (w) { return "550 ml por dia (shake e vitamina): " + Math.ceil(3.85 * w) + " caixas de 1 L."; } },
       { id: "queijo", nome: "Queijo minas frescal", q: 210, u: "g", nota: function (w) { return w > 1 ? "30 g por dia. Compre uma peça por semana; ele dura uns 10 dias." : "30 g por dia: 1 peça de ~250 g."; } }
     ]},
     { sec: "Mercearia", items: [
-      { id: "arroz", nome: "Arroz branco", q: 1.25, u: "kg", nota: "Peso cru. Rende ~3,5 kg cozido (500 g por dia). Pacote de 5 kg dura ~4 semanas." },
+      { id: "arroz", nome: "Arroz branco", q: 500, u: "g", nota: "Peso cru. Rende ~1,4 kg cozido (100 g no almoço e 100 g no jantar). Pacote de 1 kg dura ~2 semanas." },
       { id: "feijao", nome: "Feijão carioca", q: 400, u: "g", nota: "Peso cru. Rende ~1,7 kg cozido. Pacote de 1 kg dura ~2,5 semanas." },
-      { id: "aveia", nome: "Aveia em flocos", q: 280, u: "g", nota: "40 g por dia. Pacote de 500 g dura ~12 dias." },
-      { id: "amendoim", nome: "Pasta de amendoim integral", q: 105, u: "g", estoque: true, nota: "15 g por dia. Pote de 500 g dura ~1 mês." },
+      { id: "aveia", nome: "Aveia em flocos", q: 630, u: "g", nota: function (w) { return "90 g por dia (shake e pré-treino): " + Math.ceil(630 * w / 500) + " pacotes de 500 g."; } },
+      { id: "amendoim", nome: "Pasta de amendoim integral", q: 210, u: "g", estoque: true, nota: "30 g por dia (shake e vitamina). Pote de 500 g dura ~2 semanas." },
       { id: "azeite", nome: "Azeite extra virgem", q: 105, u: "ml", estoque: true, nota: "15 ml por dia. Garrafa de 500 ml dura ~1 mês." },
       { id: "cafe", nome: "Café em pó", q: null, estoque: true, nota: "O de costume, sem açúcar." }
     ]},
@@ -1363,7 +1364,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   /* ----- Plano ----- */
   function renderPlano() {
     return '<section class="section"><h2>Metas do dia</h2><div class="tiles">' +
-      tile("3.000", "kcal") + tile("192 g", "proteína") + tile("392 g", "carboidrato") + tile("76 g", "gordura") + '</div>' +
+      tile("3.000", "kcal") + tile("194 g", "proteína") + tile("358 g", "carboidrato") + tile("90 g", "gordura") + '</div>' +
       '<p class="small muted" style="margin:0">Gasto estimado entre 2.670 e 2.980 kcal (TMB de 1.720 pela fórmula e 1.920 pela bioimpedância). Valores dos alimentos aproximados pela tabela TACO.</p></section>' +
 
       '<section class="section"><h2>Semana</h2><div class="table-wrap"><table><thead><tr><th>Dia</th><th>Atividade</th><th>Duração</th></tr></thead><tbody>' +
