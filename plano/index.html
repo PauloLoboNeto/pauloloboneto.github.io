@@ -351,6 +351,8 @@ thead th { border-top: 0; font-size: 12px; text-transform: uppercase; letter-spa
 .iam.feito .iam-t { color: var(--muted); }
 .iam-b { display: grid; gap: 10px; padding: 0 14px 14px; min-width: 0; }
 .iam-q { margin: 0; font-weight: 600; font-size: 15px; }
+.hero .concl { margin: 0; line-height: 1.45; overflow-wrap: anywhere; }
+.lab-prox { margin: 0; }
 .bks-h { margin: 4px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--study); }
 .iaq { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
 .ia-grp { margin: 10px 0 0; font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
@@ -386,11 +388,6 @@ thead th { border-top: 0; font-size: 12px; text-transform: uppercase; letter-spa
   .meter i, .day .bar i { transition: width .25s ease; }
 }
 
-/* App instalado: barra de status translúcida e áreas seguras do iPhone */
-.top { padding-top: env(safe-area-inset-top, 0px); }
-body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
-.timer { padding-bottom: env(safe-area-inset-bottom, 0px); }
-
 /* Pitch: frameworks de apresentação */
 .pf { scroll-margin-top: 150px; }
 .pf-s { min-width: 46px; text-align: center; font-size: 16px; }
@@ -412,6 +409,11 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
 .pf-lab { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--study); }
 .pf-gq { margin: -4px 0 0; }
 .pf-refs a { color: var(--accent); font-weight: 600; }
+
+/* App instalado: barra de status translúcida e áreas seguras do iPhone */
+.top { padding-top: env(safe-area-inset-top, 0px); }
+body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.timer { padding-bottom: env(safe-area-inset-bottom, 0px); }
 </style>
 </head>
 <body>
@@ -1452,7 +1454,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     1: { nome: "Escritório e academia", sub: "Acorda 7h30 · metrô de 40 min em cada sentido · Treino A às 19h", blocos: [
       B("acordar", "07:30", null, "Acordar", "sono"),
       B("cafe", "07:45", null, "Café da manhã", "refeicao", { meal: "cafe", nota: "Creatina 5 g. Mais cedo que nos dias em casa." }),
-      B("metro-ida", "08:15", "08:55", "Metrô · base do item 1", "estudo", { min: 40, estudo: "leitura", slot: 0 }),
+      B("metro-ida", "08:15", "08:55", "Metrô · leitura do {t0}", "estudo", { min: 40, estudo: "leitura", slot: 0 }),
       B("trabalho", "09:00", "18:00", "Trabalho no escritório", "trabalho", { nota: "Marmita e lanche do pré-treino saíram do congelador ontem à noite." }),
       B("almoco", "12:45", null, "Almoço · marmita", "refeicao", { meal: "almoco" }),
       B("pre", "16:30", null, "Pré-treino", "refeicao", { meal: "pre" }),
@@ -1467,20 +1469,20 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     2: { nome: "Escritório", sub: "Acorda 7h30 · metrô de 40 min em cada sentido · prática às 21h", blocos: [
       B("acordar", "07:30", null, "Acordar", "sono"),
       B("cafe", "07:45", null, "Café da manhã", "refeicao", { meal: "cafe", nota: "Creatina 5 g." }),
-      B("metro-ida", "08:15", "08:55", "Metrô · base do item 2", "estudo", { min: 40, estudo: "leitura", slot: 1 }),
+      B("metro-ida", "08:15", "08:55", "Metrô · leitura do {t1}", "estudo", { min: 40, estudo: "leitura", slot: 1 }),
       B("trabalho", "09:00", "18:00", "Trabalho no escritório", "trabalho"),
       B("almoco", "12:45", null, "Almoço · marmita", "refeicao", { meal: "almoco" }),
       B("pre", "16:30", null, "Lanche da tarde", "refeicao", { meal: "pre" }),
       B("metro-volta", "18:05", "18:45", "Metrô · leitura em ordem", "estudo", { min: 40, estudo: "espinha" }),
       B("livre", "18:45", null, "Tempo livre", "livre"),
       B("jantar", "20:30", null, "Jantar", "refeicao", { meal: "jantar" }),
-      B("pratica", "21:00", "22:00", "Prática · começa o item 1", "estudo", { min: 60, estudo: "item1", nota: "A base foi lida no metrô de ontem." }),
+      B("pratica", "21:00", "22:00", "Prática do {t0}", "estudo", { min: 60, estudo: "item1" }),
       B("ceia", "23:00", null, "Ceia", "refeicao", { meal: "ceia" }),
       B("dormir", "23:30", null, "Deitar", "sono")
     ]},
     3: { nome: "Casa e academia", sub: "Revisão às 8h10 · cozinha no almoço · Treino B às 18h15", blocos: [
       B("acordar", "08:00", null, "Acordar", "sono"),
-      B("revisao", "08:10", "08:35", "Revisão ativa · item 1", "estudo", { min: 25, estudo: "revisao", slot: 0, dica: "Anote o que falta para fechar o item 1 hoje à noite." }),
+      B("revisao", "08:10", "08:35", "Revisão ativa · {t0}", "estudo", { min: 25, estudo: "revisao", slot: 0, dica: "Anote o que falta para fechar a prática do {t0}." }),
       B("cafe", "08:45", null, "Café da manhã", "refeicao", { meal: "cafe", nota: "Creatina 5 g." }),
       B("trabalho", "09:00", "18:00", "Trabalho em casa", "trabalho"),
       B("cozinha", "12:00", "14:00", "Janela de cozinha", "cozinha", { nota: "Almoço e jantar de hoje, mais a marmita e o jantar de segunda para o congelador." }),
@@ -1488,19 +1490,19 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       B("pre", "16:30", null, "Pré-treino", "refeicao", { meal: "pre" }),
       B("treino", "18:15", "19:30", "Academia · Treino B", "treino"),
       B("jantar", "20:30", null, "Jantar", "refeicao", { meal: "jantar" }),
-      B("pratica", "21:00", "22:00", "Prática · fecha o item 1", "estudo", { min: 60, estudo: "item1" }),
+      B("pratica", "21:00", "22:00", "Prática do {t0}", "estudo", { min: 60, estudo: "item1" }),
       B("ceia", "23:00", null, "Ceia", "refeicao", { meal: "ceia" }),
       B("dormir", "23:30", null, "Deitar", "sono")
     ]},
     4: { nome: "Casa", sub: "Revisão às 8h10 · cozinha no almoço · o bloco de prática mais longo", blocos: [
       B("acordar", "08:00", null, "Acordar", "sono"),
-      B("revisao", "08:10", "08:35", "Revisão ativa · item 2", "estudo", { min: 25, estudo: "revisao", slot: 1, dica: "É a base da prática das 19h." }),
+      B("revisao", "08:10", "08:35", "Revisão ativa · {t1}", "estudo", { min: 25, estudo: "revisao", slot: 1, dica: "É a base da prática das 19h." }),
       B("cafe", "08:45", null, "Café da manhã", "refeicao", { meal: "cafe", nota: "Creatina 5 g." }),
       B("trabalho", "09:00", "18:00", "Trabalho em casa", "trabalho"),
       B("cozinha", "12:00", "14:00", "Janela de cozinha", "cozinha", { nota: "Almoço e jantar de hoje, mais a marmita e o jantar de terça para o congelador." }),
       B("almoco", "12:45", null, "Almoço", "refeicao", { meal: "almoco" }),
       B("pre", "16:30", null, "Lanche da tarde", "refeicao", { meal: "pre" }),
-      B("pratica", "19:00", "20:30", "Prática · começa o item 2", "estudo", { min: 90, estudo: "item2" }),
+      B("pratica", "19:00", "20:30", "Prática do {t1}", "estudo", { min: 90, estudo: "item2" }),
       B("jantar", "20:30", null, "Jantar", "refeicao", { meal: "jantar" }),
       B("livre", "21:00", null, "Noite livre", "livre"),
       B("ceia", "23:00", null, "Ceia", "refeicao", { meal: "ceia" }),
@@ -1508,7 +1510,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     ]},
     5: { nome: "Casa e academia", sub: "Revisão às 8h10 · cozinha para o fim de semana · Treino C · noite livre", blocos: [
       B("acordar", "08:00", null, "Acordar", "sono"),
-      B("revisao", "08:10", "08:35", "Revisão ativa · os dois itens", "estudo", { min: 25, estudo: "revisao", slot: 2, dica: "O item 1 para fixar, o item 2 para o bloco de sábado." }),
+      B("revisao", "08:10", "08:35", "Revisão ativa · as duas trilhas", "estudo", { min: 25, estudo: "revisao", slot: 2, dica: "O {t0} para fixar, o {t1} para o bloco de sábado." }),
       B("cafe", "08:45", null, "Café da manhã", "refeicao", { meal: "cafe", nota: "Creatina 5 g." }),
       B("trabalho", "09:00", "18:00", "Trabalho em casa", "trabalho"),
       B("cozinha", "12:00", "14:00", "Janela de cozinha", "cozinha", { nota: "Almoço e jantar de hoje e almoço de sábado; o almoço de domingo vai para o congelador." }),
@@ -1524,7 +1526,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       B("acordar", "08:00", null, "Acordar", "sono"),
       B("cafe", "08:45", null, "Café da manhã", "refeicao", { meal: "cafe", nota: "Creatina 5 g." }),
       B("treino", "09:30", "10:15", "Natação", "treino"),
-      B("bloco", "10:45", "12:45", "Bloco longo · fecha o item 2", "estudo", { min: 120, estudo: "item2", nota: "Aceite passando, registro de decisão e escolha dos itens da próxima semana." }),
+      B("bloco", "10:45", "12:45", "Bloco longo · prática do {t1}", "estudo", { min: 120, estudo: "item2", nota: "Aceite passando e registro de decisão." }),
       B("almoco", "12:45", null, "Almoço (lote de sexta)", "refeicao", { meal: "almoco" }),
       B("livre", "13:30", null, "Tarde livre", "livre"),
       B("pre", "16:30", null, "Lanche da tarde", "refeicao", { meal: "pre" }),
@@ -1554,21 +1556,11 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   function itemLink(code, txt) { return DOCS ? '<a href="fitness-evolutivo.html#' + code.toLowerCase() + '">' + txt + "</a>" : txt; }
   function capLink(n, txt) { return DOCS ? '<a href="fundamentos-que-nao-mudam.html#cap-' + n + '">' + txt + "</a>" : txt; }
   function plano() { return S.estudo.plano || {}; }
-  function semanaDoc(ws) { return S.estudo["sem-" + iso(ws)] || {}; }
-  function cicloInfo(ws) {
-    var ini = plano().inicio;
-    if (!ini) return null;
-    var w = Math.floor((ws - parseIso(ini)) / (7 * 864e5));
-    if (w < 0) return null;
-    var n = (w % 6) + 1;
-    return { n: n, leve: n === 6, lab: n === 5 };
-  }
   function itemPorChave(k) { for (var i = 0; i < ESTUDO.itens.length; i++) if (ESTUDO.itens[i][0] === k) return ESTUDO.itens[i]; return null; }
   function capN(n) { return ESTUDO.capitulos[n - 1]; }
   function lidos() { return plano().lidos || {}; }
   function lidosL() { return plano().lidosL || {}; }
   function chaveL(b, n) { return b + ":" + n; }
-  function itemDoSlot(ws, slot) { return (semanaDoc(ws).itens || [])[slot] || ""; }
   function leituraDe(k) { return (k && ESTUDO.leitura[k]) || []; }
   // livro da O'Reilly: [autor, capítulo, título do capítulo, url, foque em, título do livro, edição em inglês, chave do livro]
   function livrosDe(k) { var it = k ? itemPorChave(k) : null; return (it && ESTUDO.livros[it[1]]) || []; }
@@ -1577,10 +1569,10 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   function tituloL(b, n) { return ESTUDO.oficial[b][String(n)] || ""; }
   function linkL(b, n, txt) { return '<a href="' + urlL(b, n) + '" target="_blank" rel="noopener">' + txt + " ↗</a>"; }
   function livroLink(l) { return linkL(l[7], l[1], l[0] + ", cap. " + l[1]); }
-  function linksHtml(ls) { return ls.map(function (l) { return livroLink(l) + (l[4] ? " (foque em " + l[4] + ")" : ""); }).join(" · "); }
   function capCurto(n) { return capLink(n, "cap. " + n + " · " + capN(n).t); }
   function lista(a) { return a.length > 1 ? a.slice(0, -1).join(", ") + " e " + a[a.length - 1] : (a[0] + ""); }
   function uniao(lists) { var out = []; lists.forEach(function (l) { l.forEach(function (n) { if (out.indexOf(n) < 0) out.push(n); }); }); return out; }
+  function attr(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;"); }
 
   // Ordem de leitura dos capítulos de um item: pré-requisitos ainda não lidos vêm antes de quem depende deles.
   function ordemLeitura(caps) {
@@ -1620,15 +1612,10 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     if (ch) scheduleSave("estudo", "plano");
     return ch;
   }
-  function marcaLeitura(id, bid) {
-    var d = parseIso(id), b = ROTINA[d.getDay()].blocos.filter(function (x) { return x.id === bid; })[0];
-    if (!b || b.estudo !== "leitura") return false;
-    if (diaDeIA(id)) return false;
-    var cl = cicloInfo(mondayOf(d));
-    if (cl && cl.lab) return false;
-    return marcaCaps(capsParaLer(itemDoSlot(mondayOf(d), b.slot)), id);
-  }
-  // Trilhas: o item 1 vem do front (Parte 1) e o item 2 do Go (Parte 2), juntos desde a primeira semana.
+
+  /* Fila de estudo: nada depende da data. Cada trilha mostra o primeiro item ainda não feito (ou o que o Paulo escolher),
+     cada bloco da Rotina mostra o próximo passo pendente, e o ✓ marca o passo, guardando só a data em que foi concluído. */
+  // Trilha 0: front (Parte 1); quando acaba, Go. Trilha 1: Go (Parte 2), depois integração e Parte 3.
   function proximoDe(pref, excl) {
     var f = plano().feitos || {};
     for (var i = 0; i < ESTUDO.itens.length; i++) {
@@ -1637,142 +1624,134 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     }
     return "";
   }
-  function sugerirSemana(cur) {
-    var f = plano().feitos || {}, out = (cur || []).slice(0, 2);
-    while (out.length < 2) out.push("");
-    if (!out[1] || f[out[1]]) out[1] = proximoDe("p2", [out[0]]) || proximoDe("pi", [out[0]]) || proximoDe("p3", [out[0]]);
-    if (!out[0] || f[out[0]]) out[0] = proximoDe("p1", [out[1]]) || proximoDe("p2", [out[1]]) || proximoDe("pi", [out[1]]) || proximoDe("p3", [out[1]]);
-    return out;
-  }
-  // Vagas da semana: o item 1 lista o front (e o Go quando o front acaba); o item 2 lista o Go, a integração e a Parte 3.
   function frenteAcabou() { var f = plano().feitos || {}; return !ESTUDO.itens.some(function (it) { return it[0].indexOf("p1:") === 0 && !f[it[0]]; }); }
   function prefixosDoSlot(slot) { return slot === 0 ? (frenteAcabou() ? ["p1", "p2", "pi", "p3"] : ["p1"]) : ["p2", "pi", "p3"]; }
-  // Laboratórios fora do app (semana 5 do ciclo)
-  function labDoSlot(ws, slot) { return (semanaDoc(ws).labs || [])[slot] || ""; }
+  function trilhaNome(t) { return t === 0 && !frenteAcabou() ? "front" : "Go"; }
+  function tx(s) { return s ? s.replace(/\{t0\}/g, trilhaNome(0)).replace(/\{t1\}/g, trilhaNome(1)) : s; }
+  // Antes da fila, os itens ficavam na semana (estudo/sem-AAAA-MM-DD): a última semana preenchida vira a escolha inicial.
+  function itensLegados() {
+    var ks = Object.keys(S.estudo).filter(function (k) { return /^sem-\d{4}-\d{2}-\d{2}$/.test(k) && S.estudo[k] && S.estudo[k].itens; }).sort();
+    return ks.length ? S.estudo[ks[ks.length - 1]].itens : [];
+  }
+  function escolhaDaTrilha(t) { var pl = plano(); return ((pl.atual || itensLegados())[t]) || ""; }
+  function itensAtuais() {
+    var f = plano().feitos || {}, out = ["", ""];
+    for (var t = 0; t < 2; t++) { var k = escolhaDaTrilha(t); if (k && !f[k] && itemPorChave(k)) out[t] = k; }
+    if (out[0] && out[0] === out[1]) out[1] = "";
+    if (!out[1]) out[1] = proximoDe("p2", [out[0]]) || proximoDe("pi", [out[0]]) || proximoDe("p3", [out[0]]);
+    if (!out[0]) out[0] = proximoDe("p1", [out[1]]) || proximoDe("p2", [out[1]]) || proximoDe("pi", [out[1]]) || proximoDe("p3", [out[1]]);
+    return out;
+  }
+  function itemDaTrilha(t) { return itensAtuais()[t] || ""; }
+
+  // Laboratórios fora do app: um liberado a cada quatro práticas feitas (a proporção do antigo ciclo de seis semanas).
+  var PRATICAS_POR_LAB = 4;
   function labN(n) { return n ? ESTUDO.labs[String(n)] : null; }
   function labsFeitos() { return plano().labsFeitos || {}; }
   function fonteLink(f) { return '<a href="' + f[1] + '" target="_blank" rel="noopener">' + f[0] + " ↗</a>"; }
-  function sugerirLabs(cur) {
-    var f = labsFeitos(), lid = lidos(), out = (cur || []).slice(0, 2), cand = [];
-    while (out.length < 2) out.push("");
-    for (var pass = 0; pass < 2; pass++) for (var n = 1; n <= 18; n++) { var sn = String(n); if (!f[sn] && cand.indexOf(sn) < 0 && (pass === 1 || lid[n])) cand.push(sn); }
-    for (var i = 0; i < 2; i++) if (!out[i] || f[out[i]]) out[i] = cand.filter(function (c) { return out.indexOf(c) < 0; })[0] || "";
+  function praticasFeitas() { var f = plano().feitos || {}; return Object.keys(f).filter(function (k) { return f[k]; }).length; }
+  function labsLiberados() { return Math.floor(praticasFeitas() / PRATICAS_POR_LAB) - Object.keys(labsFeitos()).length; }
+  function proximoLab() {
+    var f = labsFeitos(), lid = lidos(), esc = plano().labAtual;
+    if (esc && !f[esc] && labN(esc)) return esc;
+    for (var pass = 0; pass < 2; pass++) for (var n = 1; n <= 18; n++) if (!f[String(n)] && (pass === 1 || lid[n])) return String(n);
+    return "";
+  }
+  function labDevido() { return labsLiberados() > 0 ? proximoLab() : ""; }
+
+  // Leituras de um item ainda pendentes: a base do Fundamentos (pré-requisitos antes) e depois os capítulos da O'Reilly.
+  // Um capítulo que ainda vem na leitura em ordem é lido só no trecho do "Foque em", e esse trecho é marcado à parte.
+  function adiante(l) { var a = espinhaAtual(), pos = espinhaPos(l[7], l[1]); return pos >= 0 && !!a && pos > a.i && !lidosL()[chaveL(l[7], l[1])]; }
+  function chaveTrecho(k, l) { return k + "|" + chaveL(l[7], l[1]); }
+  function livroLidoPara(k, l) { return !!(lidosL()[chaveL(l[7], l[1])] || (plano().trechos || {})[chaveTrecho(k, l)]); }
+  function leiturasPendentes(k) {
+    var lid = lidos(), out = [];
+    if (!k) return out;
+    ordemLeitura(leituraDe(k)).forEach(function (x) { if (!lid[x.n]) out.push({ cap: x.n, pre: x.pre, k: k }); });
+    livrosDe(k).forEach(function (l) { if (!livroLidoPara(k, l)) out.push({ l: l, k: k }); });
     return out;
   }
-  // Preenche uma vez as vagas vazias da semana atual com o próximo de cada trilha (ou de laboratório).
-  function autoPreencher(ws) {
-    if (S.mode === "connecting" || iso(ws) !== iso(mondayOf(today))) return;
-    var key = "sem-" + iso(ws), sd = S.estudo[key] || {}, c = cicloInfo(ws), nv;
-    if (c && c.leve) return;
-    if (c && c.lab) {
-      if (sd.autoLab) return;
-      nv = sugerirLabs(sd.labs || []);
-      sd = clone(sd) || {}; sd.labs = nv; sd.autoLab = true;
-    } else {
-      if (sd.auto) return;
-      nv = sugerirSemana(sd.itens || []);
-      sd = clone(sd) || {}; sd.itens = nv; sd.auto = true;
-    }
-    S.estudo[key] = sd; scheduleSave("estudo", key);
+  function botao(act, nome, val, label, on) {
+    return '<button type="button" class="cbtn" data-act="' + act + '" data-' + nome + '="' + attr(val) + '" aria-pressed="' + (on ? "true" : "false") + '" aria-label="' + attr(label) + '">✓</button>';
   }
-  function detalheLab(b, ws) {
-    if (b.estudo === "revisao") {
-      var ns = (b.slot === 2 ? [0, 1] : [b.slot]).map(function (sl) { return labDoSlot(ws, sl); }).filter(Boolean);
-      if (!ns.length) return "Semana de laboratório: escolha os laboratórios em Estudos, mais abaixo.";
-      return "Responda sem consultar as perguntas " + (ns.length > 1 ? "dos capítulos " : "do capítulo ") + lista(ns.map(function (n) { return capLink(+n, n); })) + ", a base dos laboratórios da semana.";
-    }
-    var slot = b.estudo === "item1" ? 0 : b.estudo === "item2" ? 1 : b.slot;
-    var n = labDoSlot(ws, slot), lab = labN(n);
-    if (!lab) return "Semana de laboratório: escolha o laboratório " + (slot + 1) + " em Estudos, mais abaixo.";
-    var head = "<strong>Laboratório " + n + "</strong> · " + lab.t + ' <span class="muted">(' + lab.lang + ", cerca de " + lab.h + "h)</span><br>";
-    if (b.estudo === "leitura") return head + "Releia o " + capCurto(+n) + ", a base do laboratório, e comece pelas fontes: " + lab.fontes.map(fonteLink).join(" · ") + ".";
-    return head + lab.obj;
+  function botaoLivro(k, l, on) {
+    return adiante(l) ? botao("trecho", "key", chaveTrecho(k, l), "Marcar o trecho de " + l[0] + " cap. " + l[1] + " como lido", on)
+      : botao("lidol", "key", chaveL(l[7], l[1]), "Marcar " + l[0] + " cap. " + l[1] + " como lido", on);
   }
-  function blocoPulado(b, ws) {
-    var c = cicloInfo(ws);
-    return !!(c && c.leve && b.tipo === "estudo" && (b.estudo === "item1" || b.estudo === "item2"));
-  }
-  function minutosPlanejados(ws) {
-    var t = 0;
-    [1, 2, 3, 4, 5, 6, 0].forEach(function (wd) {
-      ROTINA[wd].blocos.forEach(function (b) { if (b.tipo === "estudo" && !blocoPulado(b, ws)) t += b.min; });
-    });
-    return t;
-  }
-  function minutosFeitos(ws) {
-    var t = 0;
-    for (var i = 0; i < 7; i++) {
-      var d = addDays(ws, i), rd = S.rotina[iso(d)];
-      if (!rd || !rd.feito) continue;
-      ROTINA[d.getDay()].blocos.forEach(function (b) { if (b.tipo === "estudo" && rd.feito[b.id]) t += b.min; });
-    }
-    return t;
-  }
-  function blocoFeito(b, id, day) {
-    if (b.meal) return !!(day.refeicoes && day.refeicoes[b.meal]);
-    if (b.tipo === "treino") return treinoStatus(id, day).done;
-    var rd = S.rotina[id];
-    return !!(rd && rd.feito && rd.feito[b.id]);
-  }
-  function treinoStatus(id, day) {
-    var act = activityOf(id);
-    if (act === "natacao") {
-      var n = (day.natacao && day.natacao.etapas || []).filter(Boolean).length;
-      return { txt: n + " de " + SWIM.length + " etapas", done: n >= SWIM.length };
-    }
-    if (!WORKOUTS[act]) return { txt: "", done: false };
-    var w = WORKOUTS[act], ok = w.ex.filter(function (x) { var a = (day.series || {})[x.id] || []; return a.filter(function (s) { return s && s.reps != null; }).length >= x.s; }).length;
-    return { txt: ok + " de " + w.ex.length + " exercícios", done: ok >= w.ex.length };
-  }
-  function rotinaPct(id) {
-    var d = parseIso(id), day = getDay(id), ws = mondayOf(d), tot = 0, ok = 0;
-    ROTINA[d.getDay()].blocos.forEach(function (b) {
-      if (!(CHECKABLE[b.tipo] || b.meal || b.tipo === "treino") || b.opcional || blocoPulado(b, ws)) return;
-      tot++; if (blocoFeito(b, id, day)) ok++;
-    });
-    return tot ? Math.round(ok / tot * 100) : 0;
-  }
+  function itemHead(k) { var it = itemPorChave(k); return "<strong>" + itemLink(it[1], it[1]) + "</strong> · " + it[2]; }
 
-  function detalheEstudo(b, ws, id) {
+  // O que um bloco de estudo da Rotina mostra: o próximo passo pendente e, quando há um, o botão que o conclui.
+  function estudoBloco(b, id) {
+    if (diaDeIA(id)) return blocoIA(b);
     var lid = lidos();
-    if (blocoPulado(b, ws)) return "Semana leve: hoje sem prática. As leituras continuam.";
-    if (id && diaDeIA(id)) return detalheIA(b);
-    var cic = cicloInfo(ws);
-    if (cic && cic.lab && b.estudo !== "espinha") return detalheLab(b, ws);
     if (b.estudo === "leitura") {
-      var k = itemDoSlot(ws, b.slot), it = k ? itemPorChave(k) : null;
-      if (!it) return "Escolha o item " + (b.slot + 1) + " em Estudos, mais abaixo: a leitura sai dele.";
-      var ordem = ordemLeitura(leituraDe(k)), pend = ordem.filter(function (x) { return !lid[x.n]; }), ls = livrosDe(k);
-      var head = "<strong>" + itemLink(it[1], it[1]) + "</strong> · " + it[2] + "<br>";
-      var depois = ls.length ? "Depois, nos seus livros: " + linksHtml(ls) + "." : "";
-      if (!pend.length) return head + "A base deste item já foi lida; releia as perguntas dos capítulos " + lista(leituraDe(k)) + ". " + depois;
-      var min = pend.reduce(function (t, x) { return t + capN(x.n).m; }, 0);
-      return head + "Leia, nesta ordem: " + lista(pend.map(function (x) { return "<strong>" + capCurto(x.n) + "</strong>" + (x.pre ? ' <span class="warn-t">(pré-requisito)</span>' : ""); })) +
-        " (cerca de " + min + " min). " + depois;
+      var t = b.slot, pend = leiturasPendentes(itemDaTrilha(t));
+      if (!pend.length) { t = 1 - t; pend = leiturasPendentes(itemDaTrilha(t)); }
+      if (!pend.length) return { det: "As leituras dos itens atuais estão feitas. Releia as perguntas dos capítulos ou adiante a leitura em ordem." };
+      var p = pend[0], agora, btn;
+      if (p.cap) {
+        agora = "<strong>" + capCurto(p.cap) + "</strong>" + (p.pre ? ' <span class="warn-t">(pré-requisito)</span>' : "") + ", cerca de " + capN(p.cap).m + " min";
+        btn = botao("lido", "n", p.cap, "Marcar o capítulo " + p.cap + " como lido");
+      } else {
+        var ad = adiante(p.l);
+        agora = livroLink(p.l) + " · " + p.l[2] + (p.l[4] ? ", com foco em " + p.l[4] : "") + (ad ? ' <span class="muted">(só esse trecho: o capítulo inteiro vem na leitura em ordem)</span>' : "");
+        btn = botaoLivro(p.k, p.l, false);
+      }
+      var resto = pend.slice(1).map(function (x) { return x.cap ? "cap. " + x.cap : x.l[0] + " cap. " + x.l[1]; });
+      return { det: itemHead(p.k) + (t !== b.slot ? ' <span class="muted">(a trilha do ' + trilhaNome(b.slot) + " já está lida; esta é do " + trilhaNome(t) + ")</span>" : "") +
+        "<br>Leia agora: " + agora + "." + (resto.length ? '<br><span class="muted">Depois: ' + lista(resto) + ".</span>" : ""), btn: btn };
     }
     if (b.estudo === "espinha") {
       var a = espinhaAtual();
-      if (!a) return "A leitura em ordem terminou. Use a volta para os capítulos dos itens da semana.";
+      if (!a) return { det: "A leitura em ordem terminou. Use a volta para os capítulos dos itens." };
       var e = a.e;
-      return linkL(e[0], e[1], "<strong>" + e[2] + ", cap. " + e[1] + " · " + e[3] + "</strong>") + ", do começo ao fim" +
-        (e[8] > 1 ? " (cerca de " + e[8] + " semanas por capítulo)" : "") + "." + (e[7].length ? " Na prática: " + lista(e[7]) + "." : "");
+      return { det: linkL(e[0], e[1], "<strong>" + e[2] + ", cap. " + e[1] + " · " + e[3] + "</strong>") + ", do começo ao fim" +
+        (e[8] > 1 ? " (cerca de " + e[8] + " semanas por capítulo)" : "") + ". Marque quando terminar o capítulo." + (e[7].length ? " Na prática: " + lista(e[7]) + "." : ""),
+        btn: botao("lidol", "key", chaveL(e[0], e[1]), "Terminei o capítulo " + e[1] + " de " + e[2]) };
     }
     if (b.estudo === "revisao") {
-      var ks = (b.slot === 2 ? [0, 1] : [b.slot]).map(function (sl) { return itemDoSlot(ws, sl); }).filter(Boolean);
-      if (!ks.length) return "Escolha os itens da semana em Estudos, mais abaixo.";
+      var ks = (b.slot === 2 ? [0, 1] : [b.slot]).map(itemDaTrilha).filter(Boolean);
+      if (!ks.length) return { det: "As trilhas terminaram: revise os capítulos que quiser." };
       var cr = uniao(ks.map(capsParaLer));
-      return "Responda sem consultar as perguntas " + (cr.length > 1 ? "dos capítulos " : "do capítulo ") + lista(cr) +
-        " (base de " + lista(ks.map(function (k2) { return itemPorChave(k2)[1]; })) + "). " + (b.dica || "");
+      return { det: "Responda sem consultar as perguntas " + (cr.length > 1 ? "dos capítulos " : "do capítulo ") + lista(cr) +
+        " (base de " + lista(ks.map(function (k2) { return itemPorChave(k2)[1]; })) + "). " + tx(b.dica || "") };
     }
-    var kp = itemDoSlot(ws, b.estudo === "item1" ? 0 : 1), ip = kp ? itemPorChave(kp) : null;
-    if (!ip) return "Escolha o item da semana em Estudos, mais abaixo.";
-    var cp = capsParaLer(kp), naoLidos = cp.filter(function (n) { return !lid[n]; });
-    var pr = praticaDe(kp);
-    return "<strong>" + itemLink(ip[1], ip[1]) + "</strong> · " + ip[2] + ' <span class="muted">(' + ip[3] + ")</span>" +
-      (pr ? "<br>Construa: " + pr.c : "") +
+    var lab = labDevido();
+    if (lab) {
+      var lb = labN(lab);
+      return { det: "<strong>Laboratório " + lab + "</strong> · " + lb.t + ' <span class="muted">(' + lb.lang + ", cerca de " + lb.h + "h)</span><br>" + lb.obj +
+        '<br><span class="muted">Liberado pelas práticas feitas; as práticas dos itens voltam quando você marcar o laboratório.</span>',
+        btn: botao("labfeito", "n", lab, "Marcar o laboratório " + lab + " como feito") };
+    }
+    var kp = itemDaTrilha(b.estudo === "item1" ? 0 : 1), ip = kp ? itemPorChave(kp) : null;
+    if (!ip) return { det: "A trilha terminou." };
+    var cp = capsParaLer(kp), naoLidos = cp.filter(function (n) { return !lid[n]; }), pr = praticaDe(kp);
+    return { det: itemHead(kp) + ' <span class="muted">(' + ip[3] + ")</span>" + (pr ? "<br>Construa: " + pr.c : "") +
       "<br>Base: " + cp.map(function (n) { return "cap. " + n + (lid[n] ? " ✓" : ""); }).join(" · ") +
       (naoLidos.length ? ' · <span class="warn-t">' + (naoLidos.length > 1 ? "falta ler os caps. " : "falta ler o cap. ") + lista(naoLidos) + "</span>" : "") +
-      (b.nota && !naoLidos.length ? "<br>" + b.nota : "");
+      (b.nota ? "<br>" + tx(b.nota) : "") + '<br><span class="muted">Leva quantas sessões precisar: marque quando a prática estiver pronta.</span>',
+      btn: botao("itemfeito", "key", kp, "Marcar a prática de " + ip[1] + " como feita") };
+  }
+  function tituloEstudo(b, id) {
+    if (diaDeIA(id)) return tituloIA(b);
+    if ((b.estudo === "item1" || b.estudo === "item2") && labDevido()) return (b.id === "bloco" ? "Bloco longo · " : "Prática · ") + "laboratório fora do app";
+    return tx(b.titulo);
+  }
+
+  // O que foi concluído numa data (cada marca guarda a data do dia selecionado quando foi feita).
+  function concluidosNoDia(id) {
+    var pl = plano(), ia = iaDoc(), out = [];
+    function scan(map, fmt) { Object.keys(map || {}).forEach(function (k) { if (map[k] === id) out.push(fmt(k)); }); }
+    function livro(k) { var p = k.split(":"); return (ESTUDO.curto[p[0]] || p[0]) + " cap. " + p[1]; }
+    scan(pl.lidos, function (n) { return "cap. " + n + " do Fundamentos"; });
+    scan(pl.lidosL, livro);
+    scan(pl.trechos, function (k) { return "trecho de " + livro(k.split("|")[1]); });
+    scan(pl.feitos, function (k) { var it = itemPorChave(k); return "prática " + (it ? it[1] : k); });
+    scan(pl.labsFeitos, function (n) { return "laboratório " + n; });
+    scan(ia.lidos, function (k) { return "leitura de IA (" + iaRotuloCurto(k) + ")"; });
+    scan(ia.passos, function (k) { var p = k.split(":"); return p[0] + ", passo " + (+p[1] + 1); });
+    scan(ia.mods, function (m) { return "módulo " + m + " concluído"; });
+    return out;
   }
 
   function backupJson() { return JSON.stringify({ v: 1, dias: S.dias, pesos: S.pesos, compras: S.compras, rotina: S.rotina, estudo: S.estudo }); }
@@ -1796,27 +1775,48 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       '<p id="bk-msg" class="small muted" style="margin:0" aria-live="polite"></p></div></section>';
   }
 
-  function renderRotina() {
-    var id = S.sel, d = parseIso(id), wd = d.getDay(), t = ROTINA[wd], day = getDay(id), ws = mondayOf(d);
-    var isToday = id === iso(today), now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes();
-    autoPreencher(ws);
-    var cyc = cicloInfo(ws), pl = plano(), sem = semanaDoc(ws), itens = sem.itens || [], feitos = pl.feitos || {};
-    var labs = sem.labs || [], lfeitos = pl.labsFeitos || {};
-    var estHoje = 0, estHojePlan = 0;
-    t.blocos.forEach(function (b) {
-      if (b.tipo !== "estudo" || blocoPulado(b, ws)) return;
-      if (!b.opcional) estHojePlan += b.min;
-      if (blocoFeito(b, id, day)) estHoje += b.min;
+  // Blocos da rotina que se marcam por dia: refeições, treino, cozinha, lazer e tarefa. O estudo anda pela fila.
+  function blocoFeito(b, id, day) {
+    if (b.meal) return !!(day.refeicoes && day.refeicoes[b.meal]);
+    if (b.tipo === "treino") return treinoStatus(id, day).done;
+    var rd = S.rotina[id];
+    return !!(rd && rd.feito && rd.feito[b.id]);
+  }
+  function treinoStatus(id, day) {
+    var act = activityOf(id);
+    if (act === "natacao") {
+      var n = (day.natacao && day.natacao.etapas || []).filter(Boolean).length;
+      return { txt: n + " de " + SWIM.length + " etapas", done: n >= SWIM.length };
+    }
+    if (!WORKOUTS[act]) return { txt: "", done: false };
+    var w = WORKOUTS[act], ok = w.ex.filter(function (x) { var a = (day.series || {})[x.id] || []; return a.filter(function (s) { return s && s.reps != null; }).length >= x.s; }).length;
+    return { txt: ok + " de " + w.ex.length + " exercícios", done: ok >= w.ex.length };
+  }
+  function rotinaConta(id) {
+    var d = parseIso(id), day = getDay(id), tot = 0, ok = 0;
+    ROTINA[d.getDay()].blocos.forEach(function (b) {
+      if (b.tipo === "estudo" || !(CHECKABLE[b.tipo] || b.meal || b.tipo === "treino") || b.opcional) return;
+      tot++; if (blocoFeito(b, id, day)) ok++;
     });
-    var feitosSemana = cyc && cyc.lab ? labs.filter(function (n) { return n && lfeitos[n]; }).length : itens.filter(function (k) { return k && feitos[k]; }).length;
+    return { ok: ok, tot: tot };
+  }
+  function rotinaPct(id) { var c = rotinaConta(id); return c.tot ? Math.round(c.ok / c.tot * 100) : 0; }
+
+  function renderRotina() {
+    var id = S.sel, d = parseIso(id), wd = d.getDay(), t = ROTINA[wd], day = getDay(id);
+    var isToday = id === iso(today), now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes();
+    var pl = plano(), feitos = pl.feitos || {}, lfeitos = labsFeitos(), atuais = itensAtuais();
+    var conta = rotinaConta(id), concl = concluidosNoDia(id);
+    var totFeitos = ESTUDO.itens.filter(function (it) { return feitos[it[0]]; }).length;
     var html = renderWeek("rotina");
     html += '<section class="card hero"><div><div class="when">' + DOW[wd] + ", " + d.getDate() + " de " + MON[d.getMonth()] + (isToday ? " · hoje" : "") + '</div>' +
       '<h2>' + t.nome + '</h2><div class="sub">' + t.sub + '</div></div><div class="stats">' +
-      stat("Estudo hoje", minLabel(estHoje), estHojePlan ? "de " + minLabel(estHojePlan) : "folga", estHojePlan ? estHoje / estHojePlan : 0, "s") +
-      stat("Na semana", minLabel(minutosFeitos(ws)), "de " + minLabel(minutosPlanejados(ws)), minutosFeitos(ws) / Math.max(1, minutosPlanejados(ws)), "s") +
-      stat(cyc && cyc.lab ? "Laboratórios" : "Itens", feitosSemana + "", "de " + (cyc && cyc.leve ? "0 (leve)" : "2"), feitosSemana / 2, "w") +
-      '</div>' + '<div class="ia-hoje">' + iaBotaoDia(id) + '<span class="small muted">' + (diaDeIA(id) ? "Os blocos de estudo de hoje apontam para a trilha de IA (aba IA). O Fitness Evolutivo continua amanhã." : "Sem vontade de Fitness Evolutivo hoje? Troque o dia pela trilha de IA.") + '</span></div>' +
-      (cyc && cyc.lab ? '<div class="advice info"><strong>Semana de laboratório</strong><span class="small">As práticas da semana vão para dois laboratórios fora do app, feitos do zero. As leituras do metrô e as revisões continuam.</span></div>' : '') + (cyc && cyc.leve ? '<div class="advice info"><strong>Semana leve de estudo</strong><span class="small">Só as leituras do metrô e as revisões. As práticas voltam na semana que vem.</span></div>' : '') +
+      stat("Rotina do dia", conta.ok + "", "de " + conta.tot + " blocos", conta.tot ? conta.ok / conta.tot : 0, "s") +
+      stat("Estudo no dia", concl.length + "", concl.length === 1 ? "passo concluído" : "passos concluídos", Math.min(1, concl.length / 4), "s") +
+      stat("Práticas", totFeitos + "", "de " + ESTUDO.itens.length + " no plano", totFeitos / ESTUDO.itens.length, "w") +
+      '</div>' + (concl.length ? '<p class="small concl"><strong>Concluído neste dia:</strong> ' + concl.join(" · ") + "</p>" : "") +
+      '<div class="ia-hoje">' + iaBotaoDia(id) + '<span class="small muted">' + (diaDeIA(id) ? "Os blocos de estudo deste dia apontam para a trilha de IA (aba IA). O Fitness Evolutivo espera, do ponto em que parou." : "Sem vontade de Fitness Evolutivo hoje? Troque o dia pela trilha de IA.") + '</span></div>' +
+      (labDevido() && !diaDeIA(id) ? '<div class="advice info"><strong>Laboratório liberado</strong><span class="small">As práticas já feitas liberaram o laboratório ' + labDevido() + ' (' + labN(labDevido()).t + '). Os blocos de prática vão para ele até você marcá-lo; as leituras e as revisões continuam com os itens.</span></div>' : '') +
       '</section>';
 
     // linha do tempo
@@ -1831,107 +1831,106 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     }
     html += '<section class="section"><h2>Linha do dia <small>' + t.blocos.length + ' blocos</small></h2><ol class="tl card">';
     t.blocos.forEach(function (b, i) {
-      var feito = blocoFeito(b, id, day), pulado = blocoPulado(b, ws);
-      var cls = "blk k-" + b.tipo + (feito ? " done" : "") + (pulado ? " skip" : "") + (i === curIdx ? " now" : "") + (i === nextIdx ? " next" : "");
-      var kind = ROT_KIND[b.tipo] + (b.min ? " · " + minLabel(b.min) : "") + (b.opcional ? " · opcional" : "");
+      var est = b.tipo === "estudo" ? estudoBloco(b, id) : null;
+      var feito = est ? false : blocoFeito(b, id, day);
+      var cls = "blk k-" + b.tipo + (feito ? " done" : "") + (i === curIdx ? " now" : "") + (i === nextIdx ? " next" : "");
+      var kind = ROT_KIND[b.tipo] + (b.min ? " · " + minLabel(b.min) : "") + (b.opcional ? " · opcional" : "") + (est && est.btn ? " · próximo passo" : "");
       var det = "";
-      if (b.tipo === "estudo") det = detalheEstudo(b, ws, id);
+      if (est) det = est.det;
       else if (b.tipo === "treino") det = treinoStatus(id, day).txt + ' · <a href="#hoje">abrir no Dia</a>';
       else if (b.meal) { var m = MEALS.filter(function (x) { return x.id === b.meal; })[0]; det = (m ? m.itens : "") + (b.nota ? "<br>" + b.nota : ""); }
       else if (b.nota) det = b.nota;
       var tag = i === curIdx ? '<span class="nowtag">agora</span>' : i === nextIdx ? '<span class="nowtag soft">próximo</span>' : "";
       var btn = "";
-      if (b.meal) btn = '<button type="button" class="cbtn" data-act="meal" data-id="' + b.meal + '" aria-pressed="' + feito + '" aria-label="Marcar ' + b.titulo + '">✓</button>';
-      else if (CHECKABLE[b.tipo] && !pulado) btn = '<button type="button" class="cbtn" data-act="blk" data-id="' + b.id + '" aria-pressed="' + feito + '" aria-label="Marcar ' + b.titulo + '">✓</button>';
+      if (est) btn = est.btn || "";
+      else if (b.meal) btn = '<button type="button" class="cbtn" data-act="meal" data-id="' + b.meal + '" aria-pressed="' + feito + '" aria-label="Marcar ' + b.titulo + '">✓</button>';
+      else if (CHECKABLE[b.tipo]) btn = '<button type="button" class="cbtn" data-act="blk" data-id="' + b.id + '" aria-pressed="' + feito + '" aria-label="Marcar ' + b.titulo + '">✓</button>';
       else if (b.tipo === "treino") btn = '<span class="cbtn ro" aria-hidden="true" data-on="' + feito + '">✓</span>';
       html += '<li class="' + cls + '"><span class="t num">' + hmLabel(b.ini) + (b.fim ? "<small>" + hmLabel(b.fim) + "</small>" : "") + '</span>' +
-        '<span class="dot" aria-hidden="true"></span><div class="b"><div class="bh"><span class="bt">' + (b.tipo === "estudo" && diaDeIA(id) ? tituloIA(b) : cyc && cyc.lab && b.tipo === "estudo" && b.estudo !== "espinha" ? b.titulo.replace("Prática ·", "Prática fora do app ·").replace(/item (\d)/, "laboratório $1") : b.titulo) + '</span>' + tag + '</div>' +
+        '<span class="dot" aria-hidden="true"></span><div class="b"><div class="bh"><span class="bt">' + (est ? tituloEstudo(b, id) : b.titulo) + '</span>' + tag + '</div>' +
         '<div class="kind">' + kind + '</div>' + (det ? '<div class="bd">' + det + '</div>' : "") + '</div>' + (btn || "<span></span>") + '</li>';
     });
     html += '</ol></section>';
 
-    // estudos
+    // fila de estudos
     var lid = lidos(), lidL = lidosL(), nLidos = Object.keys(lid).length;
     function itemSelect(slot, sid) {
-      var cur = itens[slot] || "", groups = {}, order = [], pref = prefixosDoSlot(slot);
+      var cur = atuais[slot] || "", esc = escolhaDaTrilha(slot), escolhido = esc && esc === cur, groups = {}, order = [], pref = prefixosDoSlot(slot);
+      var auto = proximoAuto(slot);
       ESTUDO.itens.forEach(function (it) {
         if (pref.indexOf(it[0].split(":")[0]) < 0 && it[0] !== cur) return;
         if (!groups[it[3]]) { groups[it[3]] = []; order.push(it[3]); } groups[it[3]].push(it);
       });
-      return '<select id="' + sid + '" data-sel="i' + (slot + 1) + '"><option value="">Escolha…</option>' + order.map(function (g) {
+      return '<select id="' + sid + '" data-sel="i' + (slot + 1) + '"><option value=""' + (escolhido ? "" : " selected") + '>O próximo da rota' + (auto ? " (" + itemPorChave(auto)[1] + ")" : "") + '</option>' + order.map(function (g) {
         return '<optgroup label="' + g + '">' + groups[g].map(function (it) {
-          return '<option value="' + it[0] + '"' + (cur === it[0] ? " selected" : "") + '>' + (feitos[it[0]] ? "✓ " : "") + it[1] + " · " + it[2] + "</option>";
+          return '<option value="' + it[0] + '"' + (escolhido && cur === it[0] ? " selected" : "") + (feitos[it[0]] ? " disabled" : "") + '>' + (feitos[it[0]] ? "✓ " : "") + it[1] + " · " + it[2] + "</option>";
         }).join("") + "</optgroup>";
       }).join("") + "</select>";
+    }
+    // O que a trilha mostraria sem escolha manual.
+    function proximoAuto(slot) {
+      var outro = atuais[1 - slot] || "";
+      return slot === 1 ? (proximoDe("p2", [outro]) || proximoDe("pi", [outro]) || proximoDe("p3", [outro]))
+        : (proximoDe("p1", [outro]) || proximoDe("p2", [outro]) || proximoDe("pi", [outro]) || proximoDe("p3", [outro]));
     }
     function preBox(msgs) {
       return msgs.length ? '<div class="pre"><span class="pre-h">Leia antes, para entender</span>' + msgs.map(function (m) { return "<span>" + m + "</span>"; }).join("") + "</div>" : "";
     }
-    function lidoBtn(act, key, on, label) {
-      return '<button type="button" class="cbtn" data-act="' + act + '" data-' + (act === "lido" ? "n" : "key") + '="' + key + '" aria-pressed="' + on + '" aria-label="' + label + '">✓</button>';
-    }
     function storyBox(slot) {
-      var k = itens[slot];
-      if (!k) return "";
+      var k = atuais[slot];
+      if (!k) return '<p class="st-p muted">Esta trilha terminou.</p>';
       var caps = leituraDe(k), ordem = ordemLeitura(caps), ls = livrosDe(k), pr = praticaDe(k), it = itemPorChave(k);
-      var dia = slot === 0 ? "segunda" : "terça", quando = slot === 0 ? "terça e quarta à noite" : "quinta à noite e sábado de manhã";
       var h = '<ol class="story">';
-      h += '<li class="st"><div class="st-h"><span class="st-n">1</span><span>A base · ' + dia + ' no metrô, ida</span></div>' +
+      h += '<li class="st"><div class="st-h"><span class="st-n">1</span><span>A base · na ida do metrô</span></div>' +
         '<div class="st-src">Fundamentos que não mudam' + (ordem.length > 1 ? ", nesta ordem" : "") + '</div>' + preBox(avisosCap(caps)) + '<ul class="caps">' +
         ordem.map(function (x) {
           var c = capN(x.n), on = !!lid[x.n];
-          return '<li class="' + (on ? "lido" : "") + '">' + lidoBtn("lido", x.n, on, "Marcar o capítulo " + x.n + " como lido") +
+          return '<li class="' + (on ? "lido" : "") + '">' + botao("lido", "n", x.n, "Marcar o capítulo " + x.n + " como lido", on) +
             '<span class="ct">' + (x.pre ? '<span class="tagpre">Pré-requisito</span>' : "") + '<b>' + capLink(x.n, "Cap. " + x.n + " · " + c.t) + '</b><span class="cq">' + c.q + '</span></span><span class="cm num">' + c.m + " min</span></li>";
         }).join("") + "</ul></li>";
-      var atual = espinhaAtual();
-      h += '<li class="st"><div class="st-h"><span class="st-n">2</span><span>Nos seus livros · ' + dia + ' no metrô, depois da base</span></div>' +
+      h += '<li class="st"><div class="st-h"><span class="st-n">2</span><span>Nos seus livros · na ida do metrô, depois da base</span></div>' +
         (ls.length ? '<ul class="bks">' + ls.map(function (l) {
-          var key = chaveL(l[7], l[1]), on = !!lidL[key], pend = preLivroPendente(l[7], l[1]), pos = espinhaPos(l[7], l[1]);
-          var adiante = pos >= 0 && !on && atual && pos > atual.i;
-          return '<li>' + lidoBtn("lidol", key, on, "Marcar " + l[0] + " cap. " + l[1] + " como lido") + '<span class="bk-c"><span class="bk-t">' + l[0] + " · " + l[5] + (l[6] ? " (edição em inglês)" : "") + '</span>' +
+          var on = livroLidoPara(k, l), pend = preLivroPendente(l[7], l[1]), ad = adiante(l);
+          return '<li>' + botaoLivro(k, l, on) + '<span class="bk-c"><span class="bk-t">' + l[0] + " · " + l[5] + (l[6] ? " (edição em inglês)" : "") + '</span>' +
             '<a href="' + l[3] + '" target="_blank" rel="noopener">Cap. ' + l[1] + " · " + l[2] + " ↗</a>" +
             (l[4] ? '<span class="bk-w">Foque em: ' + l[4] + "</span>" : "") +
             preBox(pend.map(function (p) { return "Antes do cap. " + l[1] + ", leia o " + linkL(l[7], p[0], "cap. " + p[0] + " · " + tituloL(l[7], p[0])) + ": " + p[1] + "."; })) +
-            (adiante ? '<span class="bk-n">Este capítulo ainda vem na leitura em ordem. Por agora, leia só o trecho do Foque em; o capítulo inteiro chega na volta do metrô.</span>' : "") +
+            (ad ? '<span class="bk-n">Este capítulo ainda vem na leitura em ordem. Por agora, leia só o trecho do Foque em e marque o trecho; o capítulo inteiro chega na volta do metrô.</span>' : "") +
             "</span></li>";
         }).join("") + "</ul>" : '<p class="st-p muted">Nenhum dos seus livros da O\'Reilly trata deste item. Use o resto da ida para reler as perguntas dos capítulos acima.</p>') + "</li>";
-      h += '<li class="st"><div class="st-h"><span class="st-n">3</span><span>A prática · ' + quando + "</span></div>" +
+      h += '<li class="st"><div class="st-h"><span class="st-n">3</span><span>A prática · nos blocos de prática do ' + trilhaNome(slot) + "</span></div>" +
         (pr ? '<p class="st-p"><strong>Construa:</strong> ' + pr.c + "</p>" +
           (pr.q ? '<p class="st-p"><strong>Comece quebrando:</strong> ' + pr.q + "</p>" : "") +
           '<p class="st-p"><strong>Está pronto quando:</strong></p><ul class="acc">' + pr.a.map(function (a) { return "<li>" + a + "</li>"; }).join("") + "</ul>" +
           (DOCS ? '<p class="st-p"><a href="fitness-evolutivo.html#' + it[1].toLowerCase() + '">Abrir o item ' + it[1] + " completo</a>" + (k.indexOf("p1:") === 0 ? ' · <a href="fitness-evolutivo.html#' + it[1].toLowerCase() + '--passo-a-passo">passo a passo com código</a>' : "") + "</p>"
             : (k.indexOf("p1:") === 0 ? '<p class="st-p small muted">O passo a passo com código está no item ' + it[1] + " do fitness-evolutivo.html.</p>" : "")) : "") +
-        '<button type="button" class="pillbtn" data-act="itemfeito" data-key="' + k + '" aria-pressed="' + !!feitos[k] + '">' + (feitos[k] ? "Prática feita ✓" : "Marcar a prática como feita") + "</button></li>";
+        '<button type="button" class="pillbtn" data-act="itemfeito" data-key="' + k + '" aria-pressed="false">Marcar a prática como feita</button></li>';
       return h + "</ol>";
     }
-    function labSelect(slot, sid) {
-      var cur = labs[slot] || "";
-      return '<select id="' + sid + '" data-sel="l' + (slot + 1) + '"><option value="">Escolha…</option>' +
+    function labSelect(cur) {
+      return '<select id="est-lab" data-sel="l1">' +
         Object.keys(ESTUDO.labs).map(function (n) {
           var lb = ESTUDO.labs[n];
-          return '<option value="' + n + '"' + (cur === n ? " selected" : "") + ">" + (lfeitos[n] ? "✓ " : "") + n + " · " + lb.t + " (" + lb.lang + ", ~" + lb.h + "h)" + (lid[+n] ? "" : " · capítulo ainda não lido") + "</option>";
+          return '<option value="' + n + '"' + (cur === n ? " selected" : "") + (lfeitos[n] ? " disabled" : "") + ">" + (lfeitos[n] ? "✓ " : "") + n + " · " + lb.t + " (" + lb.lang + ", ~" + lb.h + "h)" + (lid[+n] ? "" : " · capítulo ainda não lido") + "</option>";
         }).join("") + "</select>";
     }
-    function labBox(slot) {
-      var n = labs[slot], lab = labN(n);
-      if (!lab) return "";
-      var c = capN(+n), quando = slot === 0 ? "terça e quarta à noite" : "quinta à noite e sábado de manhã", dia = slot === 0 ? "segunda" : "terça";
-      return '<ol class="story"><li class="st"><div class="st-h"><span class="st-n">1</span><span>A base · ' + dia + ' no metrô, ida</span></div>' +
-        '<div class="st-src">Releia o capítulo e as fontes do laboratório</div><ul class="caps"><li class="' + (lid[+n] ? "lido" : "") + '">' + lidoBtn("lido", +n, !!lid[+n], "Marcar o capítulo " + n + " como lido") +
+    function labBox(n) {
+      var lab = labN(n), c = capN(+n);
+      return '<ol class="story"><li class="st"><div class="st-h"><span class="st-n">1</span><span>A base · releia o capítulo e as fontes</span></div>' +
+        '<ul class="caps"><li class="' + (lid[+n] ? "lido" : "") + '">' + botao("lido", "n", +n, "Marcar o capítulo " + n + " como lido", !!lid[+n]) +
         '<span class="ct"><b>' + capLink(+n, "Cap. " + n + " · " + c.t) + '</b><span class="cq">' + c.q + '</span></span><span class="cm num">' + c.m + ' min</span></li></ul>' +
         '<p class="st-p">Fontes: ' + lab.fontes.map(fonteLink).join(" · ") + "</p></li>" +
-        '<li class="st"><div class="st-h"><span class="st-n">2</span><span>O laboratório · ' + quando + "</span></div>" +
+        '<li class="st"><div class="st-h"><span class="st-n">2</span><span>O laboratório · nos blocos de prática</span></div>' +
         '<p class="st-p"><strong>' + lab.t + '</strong> <span class="muted">(' + lab.lang + ", cerca de " + lab.h + "h)</span></p>" +
         '<p class="st-p"><strong>O que você vai entender:</strong> ' + lab.obj + "</p>" +
         '<p class="st-p"><strong>Passos:</strong></p><ol class="passos">' + lab.passos.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ol>" +
         '<p class="st-p"><strong>Meça:</strong> ' + lab.meca + "</p>" +
         '<p class="st-p"><strong>Está pronto quando:</strong></p><ul class="acc">' + lab.pronto.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" +
-        (lab.h > 5.5 ? '<p class="st-p small muted">Este laboratório passa de uma semana: continue nele na próxima semana de laboratório.</p>' : "") +
-        '<button type="button" class="pillbtn" data-act="labfeito" data-n="' + n + '" aria-pressed="' + !!lfeitos[n] + '">' + (lfeitos[n] ? "Laboratório feito ✓" : "Marcar o laboratório como feito") + "</button></li></ol>";
+        '<button type="button" class="pillbtn" data-act="labfeito" data-n="' + n + '" aria-pressed="false">Marcar o laboratório como feito</button></li></ol>';
     }
     function espinhaBox() {
       var a = espinhaAtual();
-      var h = '<div class="spine"><div class="st-h"><span class="st-n">↻</span><span>Leitura em ordem · volta do metrô, segunda e terça</span></div>';
+      var h = '<div class="spine"><div class="st-h"><span class="st-n">↻</span><span>Leitura em ordem · na volta do metrô</span></div>';
       if (!a) return h + '<p class="st-p">Você terminou o Kleppmann e o Head First Algoritmos. A volta do metrô passa a ser dos capítulos dos itens.</p></div>';
       var e = a.e, doLivro = ESTUDO.espinha.filter(function (x) { return x[0] === e[0]; }), lidosLivro = doLivro.filter(function (x) { return lidL[chaveL(x[0], x[1])]; }).length;
       return h + '<span class="bk-t">' + e[2] + " · " + e[5] + (e[6] ? " (edição em inglês)" : "") + " · " + (lidosLivro + 1) + "º de " + doLivro.length + " capítulos</span>" +
@@ -1944,31 +1943,26 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     var nP2 = ESTUDO.itens.filter(function (it) { return it[0].indexOf("p2:") === 0; }).length;
     var p1Feitos = ESTUDO.itens.filter(function (it) { return it[0].indexOf("p1:") === 0 && feitos[it[0]]; }).length;
     var p2Feitos = ESTUDO.itens.filter(function (it) { return it[0].indexOf("p2:") === 0 && feitos[it[0]]; }).length;
-    var totFeitos = ESTUDO.itens.filter(function (it) { return feitos[it[0]]; }).length;
-    var wsEnd = addDays(ws, 6);
-    html += '<section class="section"><h2>Estudos <small>semana de ' + ws.getDate() + " " + MON_S[ws.getMonth()] + " a " + wsEnd.getDate() + " " + MON_S[wsEnd.getMonth()] + '</small></h2><div class="card est">' +
+    var nLabs = Object.keys(ESTUDO.labs).length, labsOk = Object.keys(lfeitos).length, labLib = labDevido();
+    var faltam = PRATICAS_POR_LAB - (praticasFeitas() % PRATICAS_POR_LAB);
+    html += '<section class="section"><h2>Fila de estudos <small>sem data: marque o que concluir</small></h2><div class="card est">' +
       '<div class="stats">' +
       stat("Front", p1Feitos + "", "de " + nP1 + " práticas", p1Feitos / nP1, "s") +
       stat("Go", p2Feitos + "", "de " + nP2 + " práticas", p2Feitos / nP2, "s") +
-      stat("Ciclo", cyc ? cyc.n + "ª" : "—", cyc ? "de 6 semanas" : "não iniciado", cyc ? cyc.n / 6 : 0, "w") + '</div>' +
-      '<p class="small muted" style="margin:0">Toda semana tem um item do front e um do Go, lado a lado. As duas leituras do metrô são obrigatórias: na ida, a base dos itens; na volta, um livro inteiro, em ordem. O ciclo tem seis semanas: quatro de itens, uma de laboratório fora do app e uma leve.</p>' +
+      stat("Laboratórios", labsOk + "", "de " + nLabs, labsOk / nLabs, "w") + '</div>' +
+      '<p class="small muted" style="margin:0">Nada aqui vence. Cada trilha mostra o próximo item ainda não feito, e cada bloco de estudo da Rotina aponta para o próximo passo pendente: o capítulo a ler, a leitura em ordem ou a prática. Se um dia não deu, o mesmo passo espera no próximo bloco. O ✓ conclui o passo e guarda a data em que você o concluiu.</p>' +
       espinhaBox() +
-      (cyc && cyc.lab ?
-        '<label class="fld" for="est-l1">Laboratório 1 · terça e quarta' + labSelect(0, "est-l1") + '</label>' + labBox(0) +
-        '<label class="fld" for="est-l2">Laboratório 2 · quinta e sábado' + labSelect(1, "est-l2") + '</label>' + labBox(1) +
-        '<div class="est-actions"><button type="button" class="link-btn" data-act="sugerirlab">Preencher com os próximos laboratórios</button>'
-      :
-        '<label class="fld" for="est-i1">Item 1 · trilha do front · lê na segunda, pratica terça e quarta' + itemSelect(0, "est-i1") + '</label>' + storyBox(0) +
-        '<label class="fld" for="est-i2">Item 2 · trilha do Go · lê na terça, pratica quinta e sábado' + itemSelect(1, "est-i2") + '</label>' + storyBox(1) +
-        '<div class="est-actions"><button type="button" class="link-btn" data-act="sugerir">Preencher com os próximos das trilhas</button>') +
-      (cyc ? "" : '<button type="button" class="link-btn" data-act="ciclo">Começar o ciclo nesta semana</button>') + '</div>' +
+      (labLib ? '<label class="fld" for="est-lab">Laboratório liberado · os blocos de prática vão para ele' + labSelect(labLib) + '</label>' + labBox(labLib)
+        : '<p class="small muted lab-prox">Laboratórios fora do app: um a cada ' + PRATICAS_POR_LAB + ' práticas feitas. O próximo libera em ' + faltam + (faltam > 1 ? " práticas" : " prática") + (proximoLab() ? " (sugestão: laboratório " + proximoLab() + ", " + labN(proximoLab()).t + ")" : "") + '.</p>') +
+      '<label class="fld" for="est-i1">Trilha do ' + trilhaNome(0) + itemSelect(0, "est-i1") + '</label>' + storyBox(0) +
+      '<label class="fld" for="est-i2">Trilha do ' + trilhaNome(1) + (frenteAcabou() ? "" : ", depois integração e Parte 3") + itemSelect(1, "est-i2") + '</label>' + storyBox(1) +
       '<p class="small muted" style="margin:0">' + totFeitos + " de " + ESTUDO.itens.length + " práticas do plano inteiro · " + nLidos + " de " + ESTUDO.capitulos.length +
-      ' capítulos do Fundamentos lidos. Quando a trilha do front acabar, o item 1 também passa a vir do Go; a integração e a Parte 3 vêm depois do Go. Os itens estão no fitness-evolutivo.html e os capítulos no fundamentos-que-nao-mudam.html.</p>' +
+      ' capítulos do Fundamentos lidos. Quando a trilha do front acabar, as duas trilhas vêm do Go; a integração e a Parte 3 vêm depois do Go. Os itens estão no fitness-evolutivo.html e os capítulos no fundamentos-que-nao-mudam.html.</p>' +
       '</div></section>';
 
     html += '<section class="section"><h2>Quando o dia aperta</h2><div class="card prose small">' +
-      '<p>A ordem é sono, treino, trabalho e só depois estudo. O primeiro bloco a cair é a prática da noite; o mínimo que mantém o fio é a revisão de 25 minutos da manhã e as leituras do metrô.</p>' +
-      '<p>Perdeu duas noites? O sábado fecha o item, sem horas extras. O domingo e o videogame não viram reposição, e nada de estudo depois das 22h.</p></div></section>';
+      '<p>A ordem é sono, treino, trabalho e só depois estudo. O primeiro bloco a cair é a prática da noite; o mínimo que mantém o fio é a leitura do metrô e a revisão de 25 minutos da manhã.</p>' +
+      '<p>Não deu para estudar? Nada fica atrasado: o passo que você não fez continua como o próximo no bloco seguinte, sem reposição e sem horas extras. O domingo e o videogame não viram reposição, e nada de estudo depois das 22h.</p></div></section>';
     return html;
   }
 
@@ -1997,27 +1991,35 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     return tipo + '<a href="' + l[3] + '" target="_blank" rel="noopener">' + l[5] + " ↗</a>" + (l[7] || tipo ? "" : ' <span class="muted">(em inglês)</span>');
   }
   function iaEhExercicio(m) { return m.pratica.tipo === "exercicio"; }
-  function detalheIA(b) {
+  function iaRotuloCurto(k) {
+    for (var i = 0; i < IA.mods.length; i++) for (var j = 0; j < IA.mods[i].leituras.length; j++) {
+      var l = IA.mods[i].leituras[j];
+      if (l[0] === k) return iaOriginal(l) ? (l[1] === "artigo" ? "artigo " + k.split(":")[1].replace("-", ".") : l[5]) : l[5].split(" · ")[0];
+    }
+    return k;
+  }
+  function blocoIA(b) {
     var m = iaAtual();
-    if (!m) return "Dia de IA: a trilha está completa. Revise o módulo que quiser na aba IA.";
+    if (!m) return { det: "Dia de IA: a trilha está completa. Revise o módulo que quiser na aba IA." };
     var pend = iaLeiturasPendentes(m), pp = iaPassosPendentes(m), ex = iaEhExercicio(m);
     var head = '<strong>' + m.id + "</strong> · " + m.t + "<br>";
     if (b.estudo === "leitura" || b.estudo === "espinha") {
       var l = pend[b.estudo === "espinha" && pend.length > 1 ? 1 : 0];
-      return head + (l ? "Leia " + iaLivroLink(l) + (l[4] ? ", com foco em " + l[4] : "") + "." : "As leituras do módulo estão feitas: releia as anotações e responda às perguntas de revisão.");
+      if (!l) return { det: head + "As leituras do módulo estão feitas: responda às perguntas de revisão e siga para o exercício." };
+      return { det: head + "Leia " + iaLivroLink(l) + (l[4] ? ", com foco em " + l[4] : "") + ".", btn: botao("ialido", "key", l[0], "Marcar a leitura como feita") };
     }
     if (b.estudo === "revisao") {
-      if (m.perguntas && m.perguntas.length) return head + "Sem consultar, responda por escrito: " + m.perguntas.map(function (x, i) { return "<b>" + (i + 1) + ".</b> " + x; }).join(" ") + " Depois confira nas leituras.";
-      return head + "Sem consultar: " + m.q + " Explique também, com as suas palavras: " + m.conceitos;
+      if (m.perguntas && m.perguntas.length) return { det: head + "Sem consultar, responda por escrito: " + m.perguntas.map(function (x, i) { return "<b>" + (i + 1) + ".</b> " + x; }).join(" ") + " Depois confira nas leituras." };
+      return { det: head + "Sem consultar: " + m.q + " Explique também, com as suas palavras: " + m.conceitos };
     }
     var k = pp[0];
-    if (k != null) return head + (ex ? "Exercício · " : "Prática · ") + m.pratica.t + ": passo " + (k + 1) + ". " + m.pratica.passos[k];
-    return head + (ex ? "O exercício do módulo está entregue" : "A prática do módulo está feita") + ": marque o módulo como concluído na aba IA.";
+    if (k != null) return { det: head + (ex ? "Exercício · " : "Prática · ") + m.pratica.t + ": passo " + (k + 1) + ". " + m.pratica.passos[k], btn: botao("iapasso", "key", m.id + ":" + k, "Marcar o passo " + (k + 1) + " como feito") };
+    return { det: head + (ex ? "O exercício do módulo está entregue" : "A prática do módulo está feita") + ": marque o módulo como concluído.", btn: botao("iamod", "id", m.id, "Marcar o módulo " + m.id + " como concluído") };
   }
   function tituloIA(b) {
     if (b.estudo === "leitura" || b.estudo === "espinha") return "Metrô · leitura de IA";
     if (b.estudo === "revisao") return "Revisão ativa · IA";
-    return b.titulo.replace(/o item \d/, "o exercício de IA").replace("Prática ·", "Prática de IA ·");
+    return b.id === "bloco" ? "Bloco longo · IA" : "Prática de IA";
   }
   function iaBotaoDia(id) {
     var on = diaDeIA(id), hoje = id === iso(today);
@@ -2200,16 +2202,6 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     if (!el || !app.contains(el)) return;
     var act = el.dataset.act, d;
     switch (act) {
-      case "pfiltro":
-        pFiltro = el.dataset.id; render(); break;
-      case "pgo":
-        pVai(el.dataset.id); break;
-      case "pest":
-      case "papl":
-        var dpi = S.estudo.pitch = clone(S.estudo.pitch) || {}, campoPi = act === "pest" ? "est" : "apl";
-        dpi[campoPi] = dpi[campoPi] || {};
-        if (dpi[campoPi][el.dataset.id]) delete dpi[campoPi][el.dataset.id]; else dpi[campoPi][el.dataset.id] = true;
-        pAbertos[el.dataset.id] = 1; scheduleSave("estudo", "pitch"); render(); break;
       case "day":
         S.sel = el.dataset.date; render(); break;
       case "week":
@@ -2248,10 +2240,20 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
         saveShop({ marcados: {}, semanas: shopState().semanas }); break;
       case "rest":
         startTimer(+el.dataset.sec, el.dataset.name); break;
+      case "pfiltro":
+        pFiltro = el.dataset.id; render(); break;
+      case "pgo":
+        pVai(el.dataset.id); break;
+      case "pest":
+      case "papl":
+        var dpi = S.estudo.pitch = clone(S.estudo.pitch) || {}, campoPi = act === "pest" ? "est" : "apl";
+        dpi[campoPi] = dpi[campoPi] || {};
+        if (dpi[campoPi][el.dataset.id]) delete dpi[campoPi][el.dataset.id]; else dpi[campoPi][el.dataset.id] = true;
+        pAbertos[el.dataset.id] = 1; scheduleSave("estudo", "pitch"); render(); break;
       case "blk":
         var rd0 = S.rotina[S.sel] = clone(S.rotina[S.sel]) || { feito: {} };
         rd0.feito = rd0.feito || {};
-        if (rd0.feito[el.dataset.id]) delete rd0.feito[el.dataset.id]; else { rd0.feito[el.dataset.id] = true; marcaLeitura(S.sel, el.dataset.id); }
+        if (rd0.feito[el.dataset.id]) delete rd0.feito[el.dataset.id]; else rd0.feito[el.dataset.id] = true;
         scheduleSave("rotina", S.sel); render(); break;
       case "lido":
         var pl1 = S.estudo.plano = clone(S.estudo.plano) || {};
@@ -2263,10 +2265,11 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
         pl0.feitos = pl0.feitos || {};
         if (pl0.feitos[el.dataset.key]) delete pl0.feitos[el.dataset.key]; else { pl0.feitos[el.dataset.key] = S.sel; marcaCaps(capsParaLer(el.dataset.key), S.sel); }
         scheduleSave("estudo", "plano"); render(); break;
-      case "sugerir":
-        var wk0 = "sem-" + iso(mondayOf(parseIso(S.sel)));
-        var sd0 = clone(S.estudo[wk0]) || {};
-        sd0.itens = sugerirSemana(sd0.itens || []); S.estudo[wk0] = sd0; scheduleSave("estudo", wk0); render(); break;
+      case "trecho":
+        var pt = S.estudo.plano = clone(S.estudo.plano) || {};
+        pt.trechos = pt.trechos || {};
+        if (pt.trechos[el.dataset.key]) delete pt.trechos[el.dataset.key]; else pt.trechos[el.dataset.key] = S.sel;
+        scheduleSave("estudo", "plano"); render(); break;
       case "bkcopy":
         var bj = backupJson(), bt = document.getElementById("bk-txt"), bm = document.getElementById("bk-msg");
         var fallback = function () { bt.value = bj; bt.focus(); bt.select(); bm.textContent = "O texto do backup está no campo acima: selecione e copie."; };
@@ -2283,12 +2286,8 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       case "labfeito":
         var pl3 = S.estudo.plano = clone(S.estudo.plano) || {};
         pl3.labsFeitos = pl3.labsFeitos || {};
-        if (pl3.labsFeitos[el.dataset.n]) delete pl3.labsFeitos[el.dataset.n]; else pl3.labsFeitos[el.dataset.n] = S.sel;
+        if (pl3.labsFeitos[el.dataset.n]) delete pl3.labsFeitos[el.dataset.n]; else { pl3.labsFeitos[el.dataset.n] = S.sel; if (pl3.labAtual === el.dataset.n) delete pl3.labAtual; }
         scheduleSave("estudo", "plano"); render(); break;
-      case "sugerirlab":
-        var wk1 = "sem-" + iso(mondayOf(parseIso(S.sel)));
-        var sd1 = clone(S.estudo[wk1]) || {};
-        sd1.labs = sugerirLabs(sd1.labs || []); sd1.autoLab = true; S.estudo[wk1] = sd1; scheduleSave("estudo", wk1); render(); break;
       case "iadia":
         var rdi = S.rotina[S.sel] = clone(S.rotina[S.sel]) || { feito: {} };
         if (rdi.ia) delete rdi.ia; else rdi.ia = true;
@@ -2312,9 +2311,6 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
         pl2.lidosL = pl2.lidosL || {};
         if (pl2.lidosL[el.dataset.key]) delete pl2.lidosL[el.dataset.key]; else pl2.lidosL[el.dataset.key] = S.sel;
         scheduleSave("estudo", "plano"); render(); break;
-      case "ciclo":
-        var pc0 = S.estudo.plano = clone(S.estudo.plano) || {};
-        pc0.inicio = iso(mondayOf(parseIso(S.sel))); scheduleSave("estudo", "plano"); render(); break;
       case "delpeso":
         S.pesos[el.dataset.id] = null; scheduleSave("pesos", el.dataset.id);
         if (S.mode === "local") delete S.pesos[el.dataset.id];
@@ -2369,14 +2365,16 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   app.addEventListener("change", function (e) {
     var sel = e.target.dataset && e.target.dataset.sel;
     if (!sel) return;
-    var v = e.target.value;
-    var wk = "sem-" + iso(mondayOf(parseIso(S.sel)));
-    var campo = sel.charAt(0) === "l" ? "labs" : "itens";
-    var sd = clone(S.estudo[wk]) || {}, it = (sd[campo] || []).slice(0, 2);
-    while (it.length < 2) it.push("");
-    it[sel.charAt(1) === "1" ? 0 : 1] = v;
-    sd[campo] = it; if (campo === "labs") sd.autoLab = true; else sd.auto = true; S.estudo[wk] = sd;
-    scheduleSave("estudo", wk);
+    var v = e.target.value, pe = S.estudo.plano = clone(S.estudo.plano) || {};
+    if (sel === "l1") { if (v) pe.labAtual = v; else delete pe.labAtual; }
+    else {
+      // A escolha da trilha fica no plano, sem data; vazio volta para o próximo da rota.
+      var at = (pe.atual || [escolhaDaTrilha(0), escolhaDaTrilha(1)]).slice(0, 2);
+      while (at.length < 2) at.push("");
+      at[sel === "i1" ? 0 : 1] = v;
+      pe.atual = at;
+    }
+    scheduleSave("estudo", "plano");
     render();
   });
 
