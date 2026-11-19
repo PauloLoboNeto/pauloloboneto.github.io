@@ -1,5 +1,5 @@
 /* Cache do app: abre sem internet. A versão muda a cada publicação. */
-const VERSAO = "plano-6e59bc3266";
+const VERSAO = "plano-1ec202b5da";
 const ARQUIVOS = ["./", "index.html", "fitness-evolutivo.html", "fundamentos-que-nao-mudam.html", "manifest.webmanifest", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSAO).then((c) => c.addAll(ARQUIVOS)).then(() => self.skipWaiting()));
