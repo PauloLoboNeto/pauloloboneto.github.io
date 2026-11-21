@@ -486,6 +486,22 @@ thead th { border-top: 0; font-size: 12px; text-transform: uppercase; letter-spa
 .lem-l li.ok .lem-t b { color: var(--muted); }
 .lem-t { display: block; min-width: 0; }
 .lem-n { display: block; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.cs-onde { display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--bg); }
+.cs-onde p { margin: 0; }
+.cs-onde-h { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--study); }
+.cs-onde ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cs-onde li { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.cs-onde li span { color: var(--muted); }
+.cs-onde li.ok b { color: var(--muted); }
+.cs-onde li.now b, .cs-onde li.now span { color: var(--study); font-weight: 700; }
+.cs-bl { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); min-width: 0; }
+.cs-bl[open] { border-color: var(--study); }
+.cs-bl > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-items: center; padding: 12px 14px; }
+.cs-bl > summary::-webkit-details-marker { display: none; }
+.cs-bl .st-n { grid-row: span 2; }
+.cs-bt { font-weight: 700; font-size: 16px; }
+.cs-bm { color: var(--muted); font-size: 13px; }
+.cs-bb { display: grid; gap: 10px; padding: 0 14px 14px; min-width: 0; }
 @media (min-width: 600px) { .tabs { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
 
 /* App instalado: barra de status translúcida e áreas seguras do iPhone */
@@ -2060,32 +2076,53 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       '<p class="st-p"><strong>Está pronto quando:</strong></p><ul class="acc">' + csLis(c.pratica.pronto) + "</ul>";
     return h;
   }
+  // Etapa do case: 1 entender, 2 ler, 3 construir, 0 tudo feito.
+  function csEtapa(c) {
+    if (!csLido(c)) return 1;
+    if (csLeituraPend(c).length) return 2;
+    return csConstruido(c) ? 0 : 3;
+  }
+  function csBloco(c, n, titulo, tempo, dica, corpo, fim) {
+    var key = c.id + ":b" + n, v = csAbertos[key], aberto = v === 1 || (v === undefined && csEtapa(c) === n);
+    return '<details class="cs-bl" data-cid="' + key + '"' + (aberto ? " open" : "") + '><summary><span class="st-n">' + n + '</span><span class="cs-bt">' + titulo + '</span><span class="cs-bm">' + tempo + "</span></summary>" +
+      '<div class="cs-bb"><p class="st-p small muted">' + dica + "</p>" + corpo + (fim ? '<div class="est-actions">' + fim + "</div>" : "") + "</div></details>";
+  }
+  function csOnde(c, lido) {
+    var et = csEtapa(c), pend = csLeituraPend(c).filter(function (x) { return x.t !== "case"; }).length, tot = (c.caps || []).length + c.livros.length;
+    var feitosP = csPassosFeitos(c), totP = c.pratica.passos.length;
+    function li(n, t, estado, ok) { return '<li class="' + (ok ? "ok" : "") + (et === n ? " now" : "") + '"><b>' + n + " · " + t + "</b><span>" + estado + "</span></li>"; }
+    return '<div class="cs-onde"><div class="cs-onde-h">Onde você está neste case</div><ol>' +
+      li(1, "Entender", lido ? "feito ✓" : "uns 40 min · agora", lido) +
+      li(2, "Ler", (tot - pend) + " de " + tot + " leituras", lido && pend === 0) +
+      li(3, "Construir", feitosP + " de " + totP + " passos", csConstruido(c)) +
+      '</ol><p class="small muted">Uma semana depois de marcar o case como lido, as ' + c.decisoes.length + " decisões voltam na revisão de 10 minutos.</p></div>";
+  }
   function csCard(c, lido, soz) {
     var feitos = csPassosFeitos(c), tot = c.pratica.passos.length, atual = caseAtual(), ehAtual = atual && atual.id === c.id;
     var estado = soz ? "redesenhado ✓" : (csConcluido(c) ? "concluído ✓" : ((lido ? "lido" : "") + (feitos ? (lido ? " · " : "") + feitos + "/" + tot + " passos" : "")));
     var h = '<details class="card iam cs' + (csConcluido(c) ? " feito" : "") + (ehAtual ? " atual" : "") + '" id="cs-' + c.id + '" data-cid="' + c.id + '"' + (csAbertos[c.id] ? " open" : "") + ">" +
       '<summary><span class="iam-id pf-s">' + c.n + '</span><span class="iam-t">' + esc(c.t) + '</span><span class="iam-s small">' + (ehAtual ? "atual · " : "") + c.nivel + " · ~" + c.horas + "h · " + c.decisoes.length + " decisões" + (estado ? " · " + estado : "") + "</span></summary>" +
-      '<div class="iam-b"><p class="iam-q">' + esc(c.q) + "</p>" + '<ol class="story">';
-    h += csSt(1, "O problema", '<p class="st-p">' + esc(c.cenario) + "</p>" +
+      '<div class="iam-b"><p class="iam-q">' + esc(c.q) + "</p>" + csOnde(c, lido) +
+      (!ehAtual && !csConcluido(c) ? '<div class="est-actions"><button type="button" class="link-btn" data-act="csfoco" data-id="' + c.id + '">Estudar este case agora</button></div>' : "");
+    var ent = '<ol class="story">';
+    ent += csSt(1, "O problema", '<p class="st-p">' + esc(c.cenario) + "</p>" +
       '<p class="st-p"><strong>O que precisa fazer</strong></p><ul class="acc">' + csLis(c.req) + "</ul>" +
       '<p class="st-p"><strong>Com que qualidade</strong></p><ul class="acc">' + csLis(c.nreq) + "</ul>");
-    h += csSt(2, "Os números", '<p class="st-p muted small">Refaça as contas antes de seguir: elas decidem quase tudo que vem depois.</p>' + csTabela(["Grandeza", "Conta", "Resultado"], c.numeros));
-    h += csSt(3, "A primeira versão", '<p class="st-p">' + esc(c.base) + '</p><p class="st-p"><strong>O caminho de uma requisição</strong></p><ol class="passos">' + csLis(c.fluxo) + "</ol>");
-    h += csSt(4, "As decisões · " + c.decisoes.length + " trade-offs", '<p class="st-p muted small">Desenhe a sua versão no papel antes de abrir. Toque numa decisão para ver o porquê, o que se perde e quando a resposta muda. Uma semana depois de marcar o case como lido, estas decisões voltam como cartões de revisão.</p>' +
+    ent += csSt(2, "Os números", '<p class="st-p muted small">Refaça as contas antes de seguir: elas decidem quase tudo que vem depois.</p>' + csTabela(["Grandeza", "Conta", "Resultado"], c.numeros));
+    ent += csSt(3, "A primeira versão", '<p class="st-p">' + esc(c.base) + '</p><p class="st-p"><strong>O caminho de uma requisição</strong></p><ol class="passos">' + csLis(c.fluxo) + "</ol>");
+    ent += csSt(4, "Desenhe a sua versão e abra as decisões · " + c.decisoes.length + " trade-offs", '<p class="st-p muted small">Pare aqui e desenhe no papel, uns 20 minutos, sem olhar as decisões. Depois toque numa decisão para ver o porquê, o que se perde e quando a resposta muda, e compare com a sua.</p>' +
       '<div class="cs-decs">' + c.decisoes.map(function (d, i) { return csDecisao(c, d, i); }).join("") + "</div>");
-    h += csSt(5, "O modelo de dados", '<p class="st-p">' + esc(c.dados) + "</p>" + csTabela(["Onde", "Chave", "Acesso"], c.tabelas));
-    h += csSt(6, "Quando algo falha", '<ul class="cs-falhas">' + c.falhas.map(function (f) { return "<li><strong>" + esc(f[0]) + ".</strong> " + esc(f[1]) + "</li>"; }).join("") + "</ul>");
-    h += csSt(7, "Custo", '<p class="st-p">' + esc(c.custo) + "</p>");
-    h += csSt(8, "Como evolui", '<ul class="cs-falhas">' + c.evolucao.map(function (f) { return "<li><strong>" + esc(f[0]) + ".</strong> " + esc(f[1]) + "</li>"; }).join("") + "</ul>");
-    h += csSt(9, "Perguntas · responda sem consultar", '<ol class="iaq">' + csLis(c.perguntas) + "</ol>");
-    h += csSt(10, "Construa · " + esc(c.pratica.t), csConstrucao(c));
-    h += csSt(11, "Leituras", csLeituras(c));
-    h += "</ol>" + '<div class="est-actions">' +
-      (!ehAtual && !csConcluido(c) ? '<button type="button" class="link-btn" data-act="csfoco" data-id="' + c.id + '">Estudar este case agora</button>' : "") +
-      pill("cslido", ' data-id="' + c.id + '"', lido ? "Li o case ✓" : "Marcar como lido", lido) +
-      pill("cssoz", ' data-id="' + c.id + '"', soz ? "Desenhei sozinho ✓" : "Desenhei sozinho, sem olhar", soz) +
-      "</div></div></details>";
-    return h;
+    ent += csSt(5, "O modelo de dados", '<p class="st-p">' + esc(c.dados) + "</p>" + csTabela(["Onde", "Chave", "Acesso"], c.tabelas));
+    ent += csSt(6, "Quando algo falha", '<ul class="cs-falhas">' + c.falhas.map(function (f) { return "<li><strong>" + esc(f[0]) + ".</strong> " + esc(f[1]) + "</li>"; }).join("") + "</ul>");
+    ent += csSt(7, "Custo", '<p class="st-p">' + esc(c.custo) + "</p>");
+    ent += csSt(8, "Como evolui", '<ul class="cs-falhas">' + c.evolucao.map(function (f) { return "<li><strong>" + esc(f[0]) + ".</strong> " + esc(f[1]) + "</li>"; }).join("") + "</ul>");
+    ent += csSt(9, "Perguntas · responda sem consultar", '<ol class="iaq">' + csLis(c.perguntas) + "</ol>") + "</ol>";
+    h += csBloco(c, 1, "Entender o case", "uns 40 min, em uma ou duas sessões", "Leia na ordem. Quando terminar, toque em \"Terminei o case\" lá embaixo: é isso que põe as decisões na revisão daqui a uma semana.", ent,
+      pill("cslido", ' data-id="' + c.id + '"', lido ? "Li o case ✓" : "Terminei o case", lido));
+    h += csBloco(c, 2, "Ler o que sustenta o case", "40 min por leitura", "Um capítulo por vez, com ✓ em cada um. Os do Fundamentos são curtos; os dos livros têm um foco indicado.", csLeituras(c));
+    h += csBloco(c, 3, "Construir em Go", "1 a 2 h por sessão", "Um passo por vez, marcando cada um. Quando você leu o case e fez todos os passos, o case conta como concluído e o próximo vira o atual.", csConstrucao(c),
+      pill("cssoz", ' data-id="' + c.id + '"', soz ? "Desenhei sozinho ✓" : "Opcional, uma semana depois: desenhei sozinho, sem olhar", soz));
+    return h + "</div></details>";
   }
 
   /* ---------- Quanto tempo você tem: o painel do Backend ---------- */
@@ -2194,7 +2231,8 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   app.addEventListener("toggle", function (e) {
     var dt = e.target;
     if (!dt || !dt.dataset || !dt.dataset.cid) return;
-    if (dt.open) csAbertos[dt.dataset.cid] = 1; else delete csAbertos[dt.dataset.cid];
+    if (/:b\d$/.test(dt.dataset.cid)) csAbertos[dt.dataset.cid] = dt.open ? 1 : 0;
+    else if (dt.open) csAbertos[dt.dataset.cid] = 1; else delete csAbertos[dt.dataset.cid];
   }, true);
 
   /* ---------- Interações ---------- */
