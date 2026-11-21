@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-/* Layout: uma coluna para celular; abas no topo (Dia / Backend / IA / Pitch / Compras / Peso / Plano); faixa da semana; cartões por bloco do dia; timer de descanso fixo embaixo. */
+/* Layout: uma coluna para celular; abas no topo (Dia / Backend / IA / Pitch / Cartões / Compras / Peso / Plano); faixa da semana; cartões por bloco do dia; timer de descanso fixo embaixo. */
 :root {
   --bg: #eef2f2;
   --surface: #ffffff;
@@ -502,7 +502,11 @@ thead th { border-top: 0; font-size: 12px; text-transform: uppercase; letter-spa
 .cs-bt { font-weight: 700; font-size: 16px; }
 .cs-bm { color: var(--muted); font-size: 13px; }
 .cs-bb { display: grid; gap: 10px; padding: 0 14px 14px; min-width: 0; }
-@media (min-width: 600px) { .tabs { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+.rv-ls li { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.rv-ls .link-btn { flex: none; }
+.pillbtn { text-decoration: none; }
+a.pillbtn { display: inline-block; }
+@media (min-width: 600px) { .tabs { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
 
 /* App instalado: barra de status translúcida e áreas seguras do iPhone */
 .top { padding-top: env(safe-area-inset-top, 0px); }
@@ -522,6 +526,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       <a href="#backend" id="tab-backend" role="tab">Backend</a>
       <a href="#ia" id="tab-ia" role="tab">IA</a>
       <a href="#pitch" id="tab-pitch" role="tab">Pitch</a>
+      <a href="#cartoes" id="tab-cartoes" role="tab">Cartões</a>
       <a href="#compras" id="tab-compras" role="tab">Compras</a>
       <a href="#peso" id="tab-peso" role="tab">Peso</a>
       <a href="#plano" id="tab-plano" role="tab">Plano</a>
@@ -1182,12 +1187,14 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
 
   function render() {
     pendingRender = false;
-    ["hoje", "backend", "ia", "pitch", "compras", "peso", "plano"].forEach(function (t) {
+    ["hoje", "backend", "ia", "pitch", "cartoes", "compras", "peso", "plano"].forEach(function (t) {
       document.getElementById("tab-" + t).setAttribute("aria-selected", String(S.tab === t));
     });
+    atualizaBadge();
     if (S.tab === "backend") app.innerHTML = renderBackend();
     else if (S.tab === "ia") app.innerHTML = renderIA();
     else if (S.tab === "pitch") app.innerHTML = renderPitch();
+    else if (S.tab === "cartoes") app.innerHTML = renderCartoes();
     else if (S.tab === "compras") app.innerHTML = renderCompras();
     else if (S.tab === "peso") app.innerHTML = renderPeso();
     else if (S.tab === "plano") app.innerHTML = renderPlano();
@@ -1631,21 +1638,25 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       '<div class="est-actions">' + pill("labfeito", ' data-n="' + n + '"', on ? "Laboratório feito ✓" : "Marcar o laboratório como feito", on) + "</div></div></details>";
   }
 
-  /* ---------- Revisão: uma fila só, com resposta escrita antes da resposta do material ---------- */
-  // Caixas de Leitner. Um cartão nasce uma semana depois de você marcar como lido um capítulo do Fundamentos, um case
-  // ou um módulo de IA. Acertou: sobe de caixa (3, 8 e depois 20 semanas). Errou ou não soube: volta em 3 dias.
-  var REV_DIAS = [7, 21, 56, 140], REV_MAX = 10, REV_ERRO = 3, REV_MIN_TXT = 15;
+  /* ---------- Cartões: uma fila só para Backend, IA e Pitch, com ciclo de vida ---------- */
+  // Um cartão nasce uma semana depois de você ler um capítulo, marcar um case como lido, concluir um módulo de IA ou adicionar
+  // um framework do Pitch. Caixas de Leitner: acertou, sobe (3, 8 e 20 semanas); errou ou não soube, volta em 3 dias.
+  // Dois acertos seguidos na última caixa aposentam o cartão (dominado). Dá para suspender e reativar.
+  var REV_DIAS = [7, 21, 56, 140], REV_MAX = 10, REV_ERRO = 3, REV_MIN_TXT = 15, REV_DIFICIL = 3;
   var revUI = { key: "", txt: "", ver: false, nao: false };
+  var revFiltro = "todos";
   function revDoc() { return S.estudo.rev || {}; }
   function revEstado(key, ini) {
     var c = (revDoc().cards || {})[key];
-    return c ? { cx: c.cx, prox: c.prox, txt: c.txt || "" } : { cx: ini.cx, prox: ini.prox, txt: "" };
+    return c ? { cx: c.cx, prox: c.prox, txt: c.txt || "", n: c.n || 0, err: c.err || 0, top: c.top || 0, st: c.st || "", novo: false }
+      : { cx: ini.cx, prox: ini.prox, txt: "", n: 0, err: 0, top: 0, st: "", novo: true };
   }
   function revRespLink(n, k) {
     var href = (DOCS ? "fundamentos-que-nao-mudam.html" : LIVRO_URL) + "#cap-" + n + "-p" + k;
     return '<a href="' + href + '"' + (DOCS ? "" : ' target="_blank" rel="noopener"') + ">a resposta no livro" + (DOCS ? "" : " ↗") + "</a>";
   }
-  // Todos os cartões que existem agora, vencidos ou não.
+  function revOrigem(c) { return c.tipo === "i" ? "ia" : c.tipo === "p" ? "pitch" : "backend"; }
+  // Todos os cartões que existem agora, em qualquer estado.
   function revElegiveis() {
     var out = [], leg = plano().espacada || {}, n;
     for (n = 1; n <= ESTUDO.capitulos.length; n++) {
@@ -1677,23 +1688,38 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
         out.push({ key: key, tipo: "i", m: m, q: q, tit: "IA · " + m.id + " · " + m.t, est: revEstado(key, { cx: 1, prox: somaDias(d2, 7 + j) }) });
       });
     });
+    var pr = (S.estudo.pitch || {}).rev || {};
+    if (typeof PITCH !== "undefined") PITCH.fw.forEach(function (f) {
+      var v4 = pr[f.id];
+      if (!v4) return;
+      var d3 = dataOk(v4) || hoje();
+      [["Quando usar o " + f.n + ", e quando evitar?", 0], ["Quais são as partes do " + f.n + "?", 1], ["Quais armadilhas ao aplicar o " + f.n + "?", 2]].forEach(function (x) {
+        var key = "p:" + f.id + ":" + x[1];
+        out.push({ key: key, tipo: "p", f: f, k: x[1], q: x[0], tit: "Pitch · " + f.n, est: revEstado(key, { cx: 1, prox: somaDias(d3, 7 + x[1]) }) });
+      });
+    });
     return out;
   }
-  function revVencidos() {
+  function revAtivos() { return revElegiveis().filter(function (c) { return !c.est.st; }); }
+  function revVencidos(f) {
     var h = hoje();
-    return revElegiveis().filter(function (c) { return c.est.prox <= h; }).sort(function (a, b) {
+    return revAtivos().filter(function (c) { return c.est.prox <= h && (!f || f === "todos" || revOrigem(c) === f); }).sort(function (a, b) {
       return a.est.prox < b.est.prox ? -1 : a.est.prox > b.est.prox ? 1 : (a.key < b.key ? -1 : 1);
     });
   }
   function revRespondidasHoje() { return (revDoc().log || {})[hoje()] || 0; }
+  function revAchar(key) { return revElegiveis().filter(function (c) { return c.key === key; })[0]; }
   function revRegistrar(key, ok, txt) {
-    var cur = revElegiveis().filter(function (c) { return c.key === key; })[0];
+    var cur = revAchar(key);
     if (!cur) return;
     var r = S.estudo.rev = clone(S.estudo.rev) || {};
     r.cards = r.cards || {}; r.log = r.log || {};
-    var antes = { cx: cur.est.cx, prox: cur.est.prox, txt: cur.est.txt || "" };
-    var cx = ok ? Math.min(cur.est.cx + 1, REV_DIAS.length) : 1;
-    r.cards[key] = { cx: cx, prox: somaDias(hoje(), ok ? REV_DIAS[cx - 1] : REV_ERRO), txt: String(txt || "").slice(0, 400) };
+    var antes = r.cards[key] ? JSON.parse(JSON.stringify(r.cards[key])) : null, e = cur.est, cx, top = e.top, err = e.err, st = "";
+    if (ok) { top = e.cx >= REV_DIAS.length ? top + 1 : 0; cx = Math.min(e.cx + 1, REV_DIAS.length); if (top >= 2) st = "dom"; }
+    else { cx = 1; top = 0; err++; }
+    var novo = { cx: cx, prox: somaDias(hoje(), ok ? REV_DIAS[cx - 1] : REV_ERRO), txt: String(txt || "").slice(0, 400), n: e.n + 1, err: err, top: top };
+    if (st) novo.st = st;
+    r.cards[key] = novo;
     r.log[hoje()] = (r.log[hoje()] || 0) + 1;
     r.ult = { key: key, d: hoje(), ok: ok, antes: antes };
     scheduleSave("estudo", "rev");
@@ -1702,15 +1728,30 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     var r = S.estudo.rev = clone(S.estudo.rev) || {};
     if (!r.ult || r.ult.d !== hoje()) return;
     r.cards = r.cards || {}; r.log = r.log || {};
-    r.cards[r.ult.key] = r.ult.antes;
+    if (r.ult.antes) r.cards[r.ult.key] = r.ult.antes; else delete r.cards[r.ult.key];
     r.log[r.ult.d] = Math.max(0, (r.log[r.ult.d] || 1) - 1);
     delete r.ult;
+    scheduleSave("estudo", "rev");
+  }
+  function revMudarEstado(key, st) {
+    var cur = revAchar(key);
+    if (!cur) return;
+    var r = S.estudo.rev = clone(S.estudo.rev) || {};
+    r.cards = r.cards || {};
+    var e = cur.est, novo = { cx: e.cx, prox: e.prox, txt: e.txt, n: e.n, err: e.err, top: e.top };
+    if (st) novo.st = st;
+    else if (e.st === "dom") { novo.cx = 1; novo.top = 0; novo.prox = hoje(); } else novo.prox = hoje();
+    r.cards[key] = novo;
     scheduleSave("estudo", "rev");
   }
   function revResposta(c) {
     if (c.tipo === "f") return '<p class="st-p">A resposta esperada está no livro: ' + revRespLink(c.n, c.k) + ". Confira o que faltou na sua.</p>";
     if (c.tipo === "c") return '<p class="st-p"><strong>A escolha.</strong> ' + esc(c.d.e) + '</p><p class="st-p"><strong>Por quê.</strong> ' + esc(c.d.por) +
       '</p><p class="st-p"><strong>O que se perde.</strong> ' + esc(c.d.contra) + '</p><p class="st-p"><strong>Quando muda.</strong> ' + esc(c.d.muda) + "</p>";
+    if (c.tipo === "p") {
+      if (c.k === 0) return '<p class="st-p"><strong>Quando usar.</strong> ' + esc(c.f.quando) + '</p><p class="st-p"><strong>Quando evitar.</strong> ' + esc(c.f.nao) + "</p>";
+      return '<ul class="acc">' + (c.k === 1 ? c.f.estrutura : c.f.armadilhas).map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+    }
     return '<p class="st-p">A resposta está nas leituras do módulo. Confira o que faltou na sua: ' + c.m.leituras.map(function (l) {
       return '<a href="' + l[3] + '" target="_blank" rel="noopener">' + esc(l[5]) + " ↗</a>";
     }).join(" · ") + "</p>";
@@ -1719,18 +1760,19 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     var u = revDoc().ult;
     return u && u.d === hoje() ? '<p class="small muted rev-u">Última resposta registrada hoje. <button type="button" class="link-btn" data-act="revdesfaz">Desfazer</button></p>' : "";
   }
+  // O que a aba mostra por cima: uma sessão de um cartão por vez.
   function revPainel() {
-    var feitas = revRespondidasHoje(), todos = revElegiveis(), venc = revVencidos(), h = '<div class="rev">';
-    if (!todos.length) return h + '<p class="st-p">Ainda não há cartões. Cada um nasce uma semana depois de você marcar como lido um capítulo do Fundamentos, um case ou um módulo de IA concluído. Assim a revisão cobre o que você já viu, sem competir com o que está aprendendo agora.</p></div>';
+    var feitas = revRespondidasHoje(), todos = revAtivos(), venc = revVencidos(revFiltro), h = '<div class="rev">';
+    if (!revElegiveis().length) return h + '<p class="st-p">Ainda não há cartões. Cada um nasce uma semana depois de você ler um capítulo do Fundamentos, marcar um case como lido, concluir um módulo de IA ou adicionar um framework do Pitch aos cartões. Assim a revisão cobre o que você já viu, sem competir com o que está aprendendo agora.</p></div>';
     if (feitas >= REV_MAX) return h + '<p class="st-p"><strong>Dez respostas hoje. Está bom.</strong> ' + (venc.length ? plural(venc.length, "cartão vencido espera", "cartões vencidos esperam") + " até amanhã." : "Nada mais vence agora.") + "</p>" + revDesfazerHtml() + "</div>";
     if (!venc.length) {
-      var prox = todos.map(function (c) { return c.est.prox; }).sort()[0];
-      return h + '<p class="st-p"><strong>Nada vencido.</strong> O próximo cartão volta em ' + dataCurta(prox) + ". " + (feitas ? "Hoje: " + plural(feitas, "resposta", "respostas") + "." : "") + "</p>" + revDesfazerHtml() + "</div>";
+      var fut = todos.filter(function (c) { return revFiltro === "todos" || revOrigem(c) === revFiltro; }).map(function (c) { return c.est.prox; }).sort()[0];
+      return h + '<p class="st-p"><strong>Nada vencido' + (revFiltro === "todos" ? "" : " neste grupo") + ".</strong> " + (fut ? "O próximo cartão volta em " + dataCurta(fut) + ". " : "") + (feitas ? "Hoje: " + plural(feitas, "resposta", "respostas") + "." : "") + "</p>" + revDesfazerHtml() + "</div>";
     }
     var c = venc.filter(function (x) { return x.key === revUI.key; })[0] || venc[0];
     if (c.key !== revUI.key) revUI = { key: c.key, txt: "", ver: false, nao: false };
     h += '<div class="rev-h">Cartão ' + (feitas + 1) + " de " + Math.min(REV_MAX, feitas + venc.length) + " · caixa " + c.est.cx + " de " + REV_DIAS.length + '</div>' +
-      '<div class="rev-t">' + esc(c.tit) + '</div><p class="rev-q">' + esc(c.q) + "</p>";
+      '<div class="rev-t">' + esc(c.tit) + (c.est.err >= REV_DIFICIL ? ' <span class="warn-t">· difícil: ' + plural(c.est.err, "erro", "erros") + ", releia a fonte antes</span>" : "") + '</div><p class="rev-q">' + esc(c.q) + "</p>";
     if (!revUI.ver) {
       h += '<label class="fld" for="rev-txt">Escreva a sua resposta antes de ver a do material<textarea id="rev-txt" rows="4" placeholder="Com as suas palavras, sem consultar. Pode estar errada.">' + esc(revUI.txt) + "</textarea></label>" +
         '<div class="esp-b"><button type="button" class="pillbtn" id="rev-ver" data-act="revver"' + (revUI.txt.trim().length < REV_MIN_TXT ? " disabled" : "") + '>Ver a resposta</button>' +
@@ -1742,7 +1784,20 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       h += '<div class="rev-vc rev-a"><span class="rev-l">A resposta</span>' + revResposta(c) + "</div>" +
         '<div class="esp-b">' + (revUI.nao ? "" : '<button type="button" class="pillbtn" data-act="revok">Acertei</button>') + '<button type="button" class="pillbtn esp-err" data-act="revno">' + (revUI.nao ? "Volta em 3 dias" : "Errei, ou faltou parte") + "</button></div>";
     }
-    return h + revDesfazerHtml() + "</div>";
+    return h + '<p class="small muted rev-u"><button type="button" class="link-btn" data-act="revsusp" data-key="' + attr(c.key) + '">Suspender este cartão</button> · ele sai da fila até você reativar.</p>' + revDesfazerHtml() + "</div>";
+  }
+  // Resumo para as abas Backend e IA: a revisão mora na aba Cartões.
+  function revResumo() {
+    var feitas = revRespondidasHoje(), venc = revVencidos("todos"), resta = Math.max(0, REV_MAX - feitas);
+    return '<div class="prox"><div class="prox-k">Revisão · 10 minutos</div><p class="st-p">' + (venc.length
+      ? "<strong>" + plural(venc.length, "cartão vencido", "cartões vencidos") + ".</strong> Hoje dá para responder " + (resta ? "até " + resta : "nenhum a mais (o limite é " + REV_MAX + ")") + "."
+      : "Nenhum cartão vencido agora.") + '</p><div class="est-actions"><a class="pillbtn" href="#cartoes">Abrir os cartões</a></div></div>';
+  }
+  function atualizaBadge() {
+    var t = document.getElementById("tab-cartoes");
+    if (!t) return;
+    var n = Math.max(0, Math.min(revVencidos("todos").length, REV_MAX - revRespondidasHoje()));
+    t.textContent = "Cartões" + (n ? " " + n : "");
   }
   app.addEventListener("input", function (e) {
     if (e.target.id !== "rev-txt") return;
@@ -1790,7 +1845,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   function espelho() {
     var ini = semanaDe(hoje()), c = contagem(ini), a = contagem(somaDias(ini, -7)), b = contagem(somaDias(ini, -14)), venc = revVencidos().length, notas = [], hojeLista = concluidosHoje();
     if (c.constr === 0 && a.constr === 0 && b.constr === 0 && a.leit >= 3 && b.leit >= 3) notas.push("Faz duas semanas que você só lê. Quando tiver uma ou duas horas, escolha construir: é o que faz a leitura grudar.");
-    if (venc > 0 && c.mem === 0) notas.push(plural(venc, "cartão vencido", "cartões vencidos") + ". Dez minutos dão conta de até " + REV_MAX + ".");
+    if (venc > 0 && c.mem === 0) notas.push(plural(venc, "cartão vencido", "cartões vencidos") + ". Dez minutos na aba Cartões dão conta de até " + REV_MAX + ".");
     return '<section class="card espelho"><div class="esp-h">Sua semana · desde ' + dataCurta(ini) + ' · um retrato, não uma meta</div>' +
       '<p class="espl"><b>' + plural(c.constr, "sessão", "sessões") + "</b> de construção · <b>" + plural(c.leit, "leitura", "leituras") + "</b> · <b>" + plural(c.mem, "resposta", "respostas") + "</b> de memória</p>" +
       notas.map(function (n) { return '<p class="small muted espn">' + n + "</p>"; }).join("") +
@@ -1833,7 +1888,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   }
   function iaEhExercicio(m) { return m.pratica.tipo === "exercicio"; }
   function iaPainel(v) {
-    if (v === "10") return revPainel();
+    if (v === "10") return revResumo();
     var m = iaAtual();
     if (!m) return '<p class="st-p">A trilha de IA está completa. Abra qualquer módulo abaixo para revisar.</p>';
     var head = "<strong>" + m.id + "</strong> · " + esc(m.t), pend = iaLeiturasPendentes(m), pp = iaPassosPendentes(m), ex = iaEhExercicio(m);
@@ -1954,6 +2009,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
       "</ol>" +
       (f.combina.length ? '<div class="pf-row"><span class="small muted">Combina com</span>' + f.combina.map(pChip).join("") + "</div>" : "") +
       (f.refs.length ? '<p class="st-p small pf-refs">Para ir além: ' + pRefs(f.refs) + "</p>" : "") +
+      '<div class="est-actions">' + pill("prev", ' data-id="' + f.id + '"', ((S.estudo.pitch || {}).rev || {})[f.id] ? "Nos cartões de revisão ✓" : "Adicionar aos cartões de revisão", !!((S.estudo.pitch || {}).rev || {})[f.id]) + "</div>" +
       "</div></details>";
   }
   function pBloco(pid, sigla, titulo, sub, corpo) {
@@ -1964,7 +2020,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   function renderPitch() {
     var n = PITCH.fw.length;
     var html = '<section class="card hero"><div><div class="when">Comunicação de arquitetura</div><h2>Frameworks de apresentação</h2>' +
-      '<div class="sub">Como apresentar arquitetura para executivos, times de engenharia e palcos técnicos. Cada framework tem quando usar, a estrutura, o passo a passo, um exemplo e as armadilhas. É só para consulta: abra quando for preparar uma apresentação.</div></div>' +
+      '<div class="sub">Como apresentar arquitetura para executivos, times de engenharia e palcos técnicos. Cada framework tem quando usar, a estrutura, o passo a passo, um exemplo e as armadilhas. É só para consulta: abra quando for preparar uma apresentação. Se quiser fixar um framework, adicione-o aos cartões de revisão: três cartões dele entram na aba Cartões uma semana depois.</div></div>' +
       '<div class="stats">' + stat("Frameworks", n + "", "para consultar", 1, "s") +
       stat("Públicos", PITCH.grupos.length + "", "grupos de público", 1, "w") + "</div></section>";
 
@@ -2127,7 +2183,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
 
   /* ---------- Quanto tempo você tem: o painel do Backend ---------- */
   function backendPainel(v) {
-    if (v === "10") return revPainel();
+    if (v === "10") return revResumo();
     var c = caseAtual();
     if (!c) return '<p class="st-p">Os doze cases estão concluídos. Abra qualquer um abaixo para refazer o desenho ou a construção.</p>';
     var head = "<strong>Case " + c.n + "</strong> · " + esc(c.t), pend = csLeituraPend(c);
@@ -2234,6 +2290,47 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     if (/:b\d$/.test(dt.dataset.cid)) csAbertos[dt.dataset.cid] = dt.open ? 1 : 0;
     else if (dt.open) csAbertos[dt.dataset.cid] = 1; else delete csAbertos[dt.dataset.cid];
   }, true);
+  /* ---------- Aba Cartões: a revisão de tudo o que você estuda ---------- */
+  function renderCartoes() {
+    var todos = revElegiveis(), ativos = todos.filter(function (c) { return !c.est.st; }), h0 = hoje(), venc = revVencidos("todos"), feitas = revRespondidasHoje();
+    var dom = todos.filter(function (c) { return c.est.st === "dom"; }), sus = todos.filter(function (c) { return c.est.st === "susp"; });
+    var html = '<section class="card hero"><div><div class="when">Revisão espaçada · Backend, IA e Pitch</div><h2>Cartões</h2>' +
+      '<div class="sub">Cada cartão nasce uma semana depois de você ler um capítulo, marcar um case como lido, concluir um módulo de IA ou adicionar um framework do Pitch. Você escreve a resposta antes de ver a do material. Acertou, o cartão volta mais tarde; errou, volta logo.</div></div>' +
+      '<div class="stats">' + stat("Vencidos", venc.length + "", "de " + ativos.length + " ativos", ativos.length ? venc.length / ativos.length : 0, "w") +
+      stat("Hoje", feitas + "", "de " + REV_MAX + " no máximo", Math.min(1, feitas / REV_MAX), "s") +
+      stat("Dominados", dom.length + "", "de " + todos.length, todos.length ? dom.length / todos.length : 0, "s") + "</div></section>";
+    var filtros = [["todos", "Todos"], ["backend", "Backend"], ["ia", "IA"], ["pitch", "Pitch"]];
+    html += '<section class="section"><div class="pf-filtros" role="group" aria-label="Filtrar cartões por origem">' + filtros.map(function (x) {
+      var n = revVencidos(x[0]).length;
+      return '<button type="button" data-act="rvfiltro" data-id="' + x[0] + '" aria-pressed="' + (revFiltro === x[0]) + '">' + x[1] + (n ? " (" + n + ")" : "") + "</button>";
+    }).join("") + "</div></section>";
+    html += '<section class="section">' + revPainel() + "</section>";
+
+    var aguard = ativos.filter(function (c) { return c.est.novo && c.est.prox > h0; }), caixa = [0, 0, 0, 0];
+    ativos.forEach(function (c) { if (!(c.est.novo && c.est.prox > h0)) caixa[c.est.cx - 1]++; });
+    var dificeis = ativos.filter(function (c) { return c.est.err >= REV_DIFICIL; });
+    html += '<section class="section"><h2>Ciclo de vida <small>' + todos.length + " cartões</small></h2><div class=\"card est\">" +
+      '<p class="st-p small muted">Um cartão espera uma semana depois de nascer. Depois entra na caixa 1; cada acerto leva à caixa seguinte, que o traz de volta em 3, 8 e 20 semanas; cada erro devolve à caixa 1, em 3 dias. Dois acertos seguidos na caixa 4 aposentam o cartão como dominado. Um cartão que perdeu o sentido pode ser suspenso, e reativado depois. Três erros marcam o cartão como difícil: vale reler a fonte.</p>' +
+      '<ul class="esp-lista"><li><b>Aguardando</b> · ' + aguard.length + ' <span class="muted">nascem na primeira semana</span></li>' +
+      caixa.map(function (n, i) { return "<li><b>Caixa " + (i + 1) + "</b> · " + n + ' <span class="muted">volta em ' + (i ? REV_DIAS[i] / 7 + " semanas" : "1 semana, ou 3 dias se errou") + "</span></li>"; }).join("") +
+      "<li><b>Dominados</b> · " + dom.length + "</li><li><b>Suspensos</b> · " + sus.length + "</li>" + (dificeis.length ? '<li><b class="warn-t">Difíceis</b> · ' + dificeis.length + " <span class=\"muted\">3 erros ou mais</span></li>" : "") + "</ul>" +
+      csTabela(["Origem", "Ativos", "Vencidos", "Dominados"], [["Backend", "backend"], ["IA", "ia"], ["Pitch", "pitch"]].map(function (o) {
+        var as = ativos.filter(function (c) { return revOrigem(c) === o[1]; });
+        return [o[0], as.length + "", as.filter(function (c) { return c.est.prox <= h0; }).length + "", dom.filter(function (c) { return revOrigem(c) === o[1]; }).length + ""];
+      })) + "</div></section>";
+
+    var prox = ativos.filter(function (c) { return c.est.prox > h0; }).sort(function (a, b) { return a.est.prox < b.est.prox ? -1 : a.est.prox > b.est.prox ? 1 : 0; }).slice(0, 6);
+    if (prox.length) html += '<section class="section"><h2>Próximos a vencer</h2><div class="card est"><ul class="esp-lista">' + prox.map(function (c) {
+      return "<li>" + dataCurta(c.est.prox) + ' · <span class="muted">' + esc(c.tit) + "</span></li>";
+    }).join("") + "</ul></div></section>";
+    if (sus.length || dom.length) {
+      var lst = function (a) { return '<ul class="esp-lista rv-ls">' + a.map(function (c) { return "<li><span>" + esc(c.tit) + ' <span class="muted">· ' + esc(c.q) + '</span></span> <button type="button" class="link-btn" data-act="revreat" data-key="' + attr(c.key) + '">Reativar</button></li>'; }).join("") + "</ul>"; };
+      html += '<section class="section"><div class="ia-mods">' +
+        (sus.length ? apoioBloco("_rsus", "Susp", "Suspensos", plural(sus.length, "cartão", "cartões"), lst(sus)) : "") +
+        (dom.length ? apoioBloco("_rdom", "Dom", "Dominados", plural(dom.length, "cartão", "cartões"), lst(dom)) : "") + "</div></section>";
+    }
+    return html;
+  }
 
   /* ---------- Interações ---------- */
   app.addEventListener("click", function (e) {
@@ -2301,6 +2398,17 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
         dcp.passos = dcp.passos || {};
         if (dcp.passos[el.dataset.key]) delete dcp.passos[el.dataset.key]; else dcp.passos[el.dataset.key] = hoje();
         csAbertos[el.dataset.key.split(":")[0]] = 1; scheduleSave("estudo", "cases"); render(); break;
+      case "rvfiltro":
+        revFiltro = el.dataset.id; revUI = { key: "", txt: "", ver: false, nao: false }; render(); break;
+      case "revsusp":
+        revMudarEstado(el.dataset.key, "susp"); revUI = { key: "", txt: "", ver: false, nao: false }; render(); break;
+      case "revreat":
+        revMudarEstado(el.dataset.key, ""); render(); break;
+      case "prev":
+        var dpv = S.estudo.pitch = clone(S.estudo.pitch) || {};
+        dpv.rev = dpv.rev || {};
+        if (dpv.rev[el.dataset.id]) delete dpv.rev[el.dataset.id]; else dpv.rev[el.dataset.id] = hoje();
+        pAbertos[el.dataset.id] = 1; scheduleSave("estudo", "pitch"); render(); break;
       case "blk":
         var rd0 = S.rotina[S.sel] = clone(S.rotina[S.sel]) || { feito: {} };
         rd0.feito = rd0.feito || {};
@@ -2415,7 +2523,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   /* ---------- Abas ---------- */
   function readHash() {
     var h = (location.hash || "").replace("#", "");
-    S.tab = (h === "peso" || h === "plano" || h === "compras" || h === "backend" || h === "ia" || h === "pitch") ? h : (h === "cases" || h === "estudos") ? "backend" : "hoje";
+    S.tab = (h === "peso" || h === "plano" || h === "compras" || h === "backend" || h === "ia" || h === "pitch" || h === "cartoes") ? h : (h === "cases" || h === "estudos") ? "backend" : "hoje";
   }
   window.addEventListener("hashchange", function () { readHash(); render(); window.scrollTo(0, 0); });
 
