@@ -1749,13 +1749,36 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     Object.keys(pl.espacada || {}).forEach(function (n) { (pl.espacada[n].hist || []).forEach(function (h) { if (dentro(h.d)) mem += 2; }); });
     return { constr: Object.keys(dias).length, leit: leit, mem: mem };
   }
+  // O que foi marcado hoje, cada item num botão que desfaz a marca (as mesmas ações dos botões, que alternam).
+  function concluidosHoje() {
+    var id = hoje(), pl = plano(), ia = iaDoc(), cs = S.estudo.cases || {}, out = [];
+    function scan(map, act, campo, fmt) { Object.keys(map || {}).forEach(function (k) { if (map[k] === id) out.push({ t: fmt(k), act: act, campo: campo, v: k }); }); }
+    function nomeCase(k) { var c = typeof CASES !== "undefined" ? caseById(k) : null; return c ? c.n + " · " + c.t : k; }
+    function nomeLeitura(k) { for (var i = 0; i < IA.mods.length; i++) for (var j = 0; j < IA.mods[i].leituras.length; j++) if (IA.mods[i].leituras[j][0] === k) return IA.mods[i].leituras[j][5]; return k; }
+    scan(pl.lidos, "lido", "n", function (n) { return "cap. " + n + " do Fundamentos"; });
+    scan(pl.lidosL, "lidol", "key", function (k) { var q = k.split(":"); return (ESTUDO.curto[q[0]] || q[0]) + " cap. " + q[1]; });
+    scan(pl.labsFeitos, "labfeito", "n", function (n) { return "laboratório " + n; });
+    scan(cs.lido, "cslido", "id", function (k) { return "case lido: " + nomeCase(k); });
+    scan(cs.sozinho, "cssoz", "id", function (k) { return "case redesenhado: " + nomeCase(k); });
+    scan(cs.passos, "cspasso", "key", function (k) { var q = k.split(":"); var cc = caseById(q[0]); return "passo " + (+q[1] + 1) + " do case " + (cc ? cc.t : q[0]); });
+    scan(ia.lidos, "ialido", "key", function (k) { return "leitura de IA: " + nomeLeitura(k); });
+    scan(ia.passos, "iapasso", "key", function (k) { var q = k.split(":"); return q[0] + ", passo " + (+q[1] + 1); });
+    scan(ia.mods, "iamod", "id", function (m) { return "módulo " + m + " concluído"; });
+    var u = revDoc().ult;
+    if (u && u.d === id) out.push({ t: "última resposta da revisão", act: "revdesfaz" });
+    return out;
+  }
+  function chipHoje(c) {
+    return '<button type="button" class="undo-chip" data-act="' + c.act + '"' + (c.campo ? " data-" + c.campo + '="' + attr(c.v) + '"' : "") + ' aria-label="Desfazer: ' + attr(c.t) + '">' + esc(c.t) + ' <span aria-hidden="true">↺</span></button>';
+  }
   function espelho() {
-    var ini = semanaDe(hoje()), c = contagem(ini), a = contagem(somaDias(ini, -7)), b = contagem(somaDias(ini, -14)), venc = revVencidos().length, notas = [];
+    var ini = semanaDe(hoje()), c = contagem(ini), a = contagem(somaDias(ini, -7)), b = contagem(somaDias(ini, -14)), venc = revVencidos().length, notas = [], hojeLista = concluidosHoje();
     if (c.constr === 0 && a.constr === 0 && b.constr === 0 && a.leit >= 3 && b.leit >= 3) notas.push("Faz duas semanas que você só lê. Quando tiver uma ou duas horas, escolha construir: é o que faz a leitura grudar.");
     if (venc > 0 && c.mem === 0) notas.push(plural(venc, "cartão vencido", "cartões vencidos") + ". Dez minutos dão conta de até " + REV_MAX + ".");
     return '<section class="card espelho"><div class="esp-h">Sua semana · desde ' + dataCurta(ini) + ' · um retrato, não uma meta</div>' +
       '<p class="espl"><b>' + plural(c.constr, "sessão", "sessões") + "</b> de construção · <b>" + plural(c.leit, "leitura", "leituras") + "</b> · <b>" + plural(c.mem, "resposta", "respostas") + "</b> de memória</p>" +
-      notas.map(function (n) { return '<p class="small muted espn">' + n + "</p>"; }).join("") + "</section>";
+      notas.map(function (n) { return '<p class="small muted espn">' + n + "</p>"; }).join("") +
+      (hojeLista.length ? '<div class="concl"><p class="small espn"><strong>Marcado hoje</strong> <span class="muted">· toque num item para desfazer</span></p><div class="undo-chips">' + hojeLista.map(chipHoje).join("") + "</div></div>" : "") + "</section>";
   }
 
   /* ---------- Quanto tempo você tem agora? ---------- */
