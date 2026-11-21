@@ -1597,7 +1597,14 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
   }
 
   /* ---------- Backup ---------- */
-  function backupJson() { return JSON.stringify({ v: 1, dias: S.dias, pesos: S.pesos, compras: S.compras, rotina: S.rotina, estudo: S.estudo }); }
+  function backupJson() { return JSON.stringify({ v: 1, quando: new Date().toISOString(), dias: S.dias, pesos: S.pesos, compras: S.compras, rotina: S.rotina, estudo: S.estudo }); }
+  function nChaves(o) { return Object.keys(o || {}).filter(function (k) { return o[k] != null; }).length; }
+  function backupResumo(o) {
+    var e = o.estudo || {}, ps = (e.plano || {}).lidos, cs = (e.cases || {}).lido, rv = (e.rev || {}).cards;
+    var q = o.quando ? " de " + dataCurta(String(o.quando).slice(0, 10)) : "";
+    return "Backup" + q + ": " + plural(nChaves(o.dias), "dia", "dias") + " de treino e refeições, " + plural(nChaves(o.pesos), "pesagem", "pesagens") + ", " + plural(nChaves(o.compras), "lista de compras", "listas de compras") +
+      ", " + plural(nChaves(ps), "capítulo lido", "capítulos lidos") + ", " + plural(nChaves(cs), "case lido", "cases lidos") + " e " + plural(nChaves(rv), "cartão com histórico", "cartões com histórico") + ".";
+  }
   function restaurarBackup(txt) {
     var o = JSON.parse(txt);
     if (!o || o.v !== 1) throw new Error("formato");
@@ -1608,10 +1615,13 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
     });
     return n;
   }
+  function ultBackup() { try { return localStorage.getItem("plano-ult-backup") || ""; } catch (e) { return ""; } }
   var bkConfirmar = false;
   function renderBackup() {
+    var ub = ultBackup();
     return '<section class="section"><h2>Backup dos registros</h2><div class="card est">' +
-      '<p class="small muted" style="margin:0">Copia como texto tudo o que você marcou: refeições, séries, pesagens, compras, lembretes e estudos. Cole no outro aparelho (ou no app do iPhone) e toque em Restaurar para levar os dados junto. Restaurar substitui só os registros das mesmas datas.</p>' +
+      '<p class="small muted" style="margin:0">Copia como texto tudo o que o app guarda: refeições, séries, pesagens, compras, lembretes, leituras, cases, exercícios, cartões de revisão e Pitch. Guarde o texto onde quiser (Notas, e-mail para você mesmo). Para recuperar, cole aqui, neste ou em outro aparelho, e toque em Restaurar. Restaurar substitui só os registros das mesmas datas e chaves; o que não está no backup fica como está.</p>' +
+      '<p class="small" style="margin:0">' + (ub ? "Último backup copiado neste aparelho: " + dataCurta(ub) + "." : "Você ainda não copiou um backup neste aparelho.") + "</p>" +
       '<div class="est-actions"><button type="button" class="pillbtn" data-act="bkcopy">Copiar backup</button></div>' +
       '<label class="fld" for="bk-txt">Restaurar a partir de um backup<textarea id="bk-txt" rows="3" placeholder="Cole aqui o texto do backup"></textarea></label>' +
       '<div class="est-actions"><button type="button" class="pillbtn" data-act="bkrest">' + (bkConfirmar ? "Toque de novo para confirmar" : "Restaurar") + '</button></div>' +
@@ -2457,13 +2467,22 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
         dfo.foco = el.dataset.id; iaAbertoUI = el.dataset.id; scheduleSave("estudo", "ia"); render(); break;
       case "bkcopy":
         var bj = backupJson(), bt = document.getElementById("bk-txt"), bm = document.getElementById("bk-msg");
+        try { localStorage.setItem("plano-ult-backup", hoje()); } catch (e2) { /* sem armazenamento local */ }
         var fallback = function () { bt.value = bj; bt.focus(); bt.select(); bm.textContent = "O texto do backup está no campo acima: selecione e copie."; };
-        try { navigator.clipboard.writeText(bj).then(function () { bm.textContent = "Backup copiado (" + Math.max(1, Math.round(bj.length / 1024)) + " KB). Cole no outro aparelho."; }, fallback); } catch (e0) { fallback(); }
+        try { navigator.clipboard.writeText(bj).then(function () { bm.textContent = backupResumo(JSON.parse(bj)) + " Copiado (" + Math.max(1, Math.round(bj.length / 1024)) + " KB)."; }, fallback); } catch (e0) { fallback(); }
         break;
       case "bkrest":
         var rt = document.getElementById("bk-txt"), rm = document.getElementById("bk-msg"), rv = rt.value.trim();
         if (!rv) { rm.textContent = "Cole o texto do backup no campo antes."; rt.focus(); break; }
-        if (!bkConfirmar) { bkConfirmar = true; el.textContent = "Toque de novo para confirmar"; rm.textContent = "Isso substitui os registros das mesmas datas."; break; }
+        if (!bkConfirmar) {
+          try {
+            var ro = JSON.parse(rv);
+            if (!ro || ro.v !== 1) throw new Error("formato");
+            bkConfirmar = true; el.textContent = "Toque de novo para confirmar";
+            rm.textContent = backupResumo(ro) + " Restaurar substitui os registros das mesmas datas.";
+          } catch (e3) { rm.textContent = "Esse texto não é um backup deste app."; }
+          break;
+        }
         bkConfirmar = false;
         try { var rn = restaurarBackup(rv); rt.value = ""; render(); var rm2 = document.getElementById("bk-msg"); if (rm2) rm2.textContent = rn + " registros restaurados."; }
         catch (e1) { el.textContent = "Restaurar"; rm.textContent = "Esse texto não é um backup deste app."; }
